@@ -22,7 +22,7 @@ namespace Permabuffs_V2
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(3, 8, 2, 1); } }
+        public override Version Version { get { return new Version(4, 0, 0, 0); } }
 
         private static IDbConnection db;
 
