@@ -1,0 +1,11 @@
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\Permabuffs V2.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\Permabuffs V2.pdb
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\Mono.Data.Sqlite.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\MySql.Data.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\TerrariaServer.exe
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\TShockAPI.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\HttpServer.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\obj\Debug\Permabuffs V2.dll
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\obj\Debug\Permabuffs V2.pdb
+C:\Users\Clay\Documents\GitHub\Permabuffs V2\Permabuffs V2\bin\Debug\BCrypt.Net.dll
