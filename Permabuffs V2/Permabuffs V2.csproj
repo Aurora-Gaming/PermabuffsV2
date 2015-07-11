@@ -51,11 +51,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="TerrariaServer, Version=1.15.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\TShock_4.3\TerrariaServer.exe</HintPath>
+      <HintPath>..\..\..\..\Desktop\tshock_4.3.3-pre1\TerrariaServer.exe</HintPath>
     </Reference>
-    <Reference Include="TShockAPI, Version=4.2.10.0, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="TShockAPI, Version=4.3.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Desktop\TShock_4.3\ServerPlugins\TShockAPI.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\tshock_4.3.3-pre1\ServerPlugins\TShockAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

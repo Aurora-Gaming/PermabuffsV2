@@ -16,13 +16,13 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-    [ApiVersion(1,17)]
+    [ApiVersion(1,19)]
     public class Permabuffs : TerrariaPlugin
     {
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(4, 0, 0, 0); } }
+        public override Version Version { get { return new Version(4, 0, 1, 0); } }
 
         private static IDbConnection db;
 
@@ -153,16 +153,16 @@ namespace Permabuffs_V2
 
             foreach (KeyValuePair<string, List<int>> kvp in config.regionbuffs)
             {
-                if (kvp.Key == args.Player.CurrentRegion.Name && kvp.Value.Count > 0)
+                if (kvp.Key == args.Region.Name && kvp.Value.Count > 0)
                 {
                     regionkvp = kvp;
                 }
             }
 
-            if (regionkvp.Key != "null" && !hasAnnounced[args.Player.Index].Contains(args.Player.CurrentRegion.Name))
+            if (regionkvp.Key != "null" && !hasAnnounced[args.Player.Index].Contains(args.Region.Name))
             {
                 args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", regionkvp.Value.Select(p => Main.buffName[p])));
-                hasAnnounced[args.Player.Index].Add(args.Player.CurrentRegion.Name);
+                hasAnnounced[args.Player.Index].Add(args.Region.Name);
             }
         }
 
@@ -700,8 +700,10 @@ namespace Permabuffs_V2
                     args.Player.SendErrorMessage("You do not have permission to clear all permabuffs.");
                     return;
                 }
-                clearDB();
-                permas.Clear();
+                foreach (KeyValuePair<int, DBInfo> kvp in permas)
+                {
+                    kvp.Value.bufflist.Clear();
+                }
                 args.Player.SendSuccessMessage("All permabuffs have been deactivated for all players.");
                 if (!args.Silent)
                 {
@@ -715,8 +717,7 @@ namespace Permabuffs_V2
                     args.Player.SendErrorMessage("You must be in-game to use this command.");
                     return;
                 }
-                clearDB(args.Player.User.ID);
-                permas.Remove(args.Player.Index);
+                permas[args.Player.Index].bufflist.Clear();
 
                 args.Player.SendSuccessMessage("All of your permabuffs have been deactivated.");
             }
