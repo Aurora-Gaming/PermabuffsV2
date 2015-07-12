@@ -22,7 +22,7 @@ namespace Permabuffs_V2
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(4, 0, 1, 0); } }
+        public override Version Version { get { return new Version(4, 0, 1, 1); } }
 
         private static IDbConnection db;
 
@@ -94,6 +94,9 @@ namespace Permabuffs_V2
             if (globalbuffs.Count > 0)
                 TShock.Players[args.Who].SendInfoMessage("This server has the following global permabuffs active: {0}", string.Join(", ", globalbuffs.Select(p => Main.buffName[p])));
 
+            if (!hasAnnounced.ContainsKey(args.Who))
+                hasAnnounced.Add(args.Who, new List<string>());
+
             if (!TShock.Players[args.Who].IsLoggedIn)
                 return;
 
@@ -112,8 +115,7 @@ namespace Permabuffs_V2
                 //loadDBInfo(args.Who);
                 if (permas[args.Who].bufflist.Count > 0)
                     TShock.Players[args.Who].SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", permas[args.Who].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
-            }
-            
+            }            
         }
         
         public void OnPostLogin(PlayerPostLoginEventArgs args)
@@ -135,9 +137,6 @@ namespace Permabuffs_V2
                 if (permas[args.Player.Index].bufflist.Count > 0)
                     args.Player.SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", permas[args.Player.Index].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
             }
-
-            if (!hasAnnounced.ContainsKey(args.Player.Index))
-                hasAnnounced.Add(args.Player.Index, new List<string>());
         }
 
         public void OnAccDelete(AccountDeleteEventArgs args)
