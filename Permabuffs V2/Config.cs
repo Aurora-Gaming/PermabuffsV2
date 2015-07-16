@@ -20,9 +20,179 @@ namespace Permabuffs_V2
     {
         public BuffGroup[] buffgroups = new BuffGroup[]
         {
-            new BuffGroup() { groupName = "probuffs", groupPerm = "probuffs", isperma = true, buffIDs = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 26, 29, 48, 58, 63, 71, 73, 74, 75, 76, 77, 78, 79, 93, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 119, 121, 122, 123, 124} },
-            new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", isperma = false, buffIDs = new List<int>() { 19, 27, 40, 41, 42, 45, 49, 50, 51, 52, 53, 54, 55, 56, 57, 61, 64, 65, 66, 81, 82, 83, 84, 85, 90, 91, 92, 101, 102, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 139}},
-            new BuffGroup() { groupName = "debuffs", groupPerm = "debuffs", isperma = true, buffIDs = new List<int>() { 20, 21, 22, 23, 24, 25, 30, 31, 32, 33, 35, 36, 46, 47, 67, 68, 69, 70, 72, 80, 94, 103, 137}}
+            //34 - Merfolk - Seems broken when used by command.
+            new BuffGroup() { groupName = "probuffs", groupPerm = "probuffs", isperma = true, buffIDs = new List<int>() { 
+                1, // Obsidian Skin
+                2, //Regeneration
+                3, //Swiftness
+                4, //Gills
+                5, //Ironskin
+                6, //Mana Regeneration
+                7, //Magic Power
+                8, //Featherfall
+                9, //Spelunker
+                10, //Invisibility
+                11, //Shine
+                12, //Night Owl
+                13, //Battle
+                14, //Thorns
+                15, //Water Walking
+                16, //Archery
+                17, //Hunter
+                18, //Gravitation
+                26, //Well Fed
+                29, //Clairvoyance
+                43, //Paladin's Shield - No time limit, but still probuff
+                48, //Honey
+                58, //Rapid Healing
+                59, //Shadow Dodge
+                //60 - Leaf Crystal - Client-Activated Only
+                //62 - Ice Barrier - Client-Activated Only
+                63, //Panic!
+                71, //Weapon Imbue Venom
+                73, //Weapon Imbue Cursed Flames
+                74, //Weapon Imbue Fire
+                75, //Weapon Imbue Gold
+                76, //Weapon Imbue Ichor
+                77, //Weapon Imbue Nanites
+                78, //Weapon Imbue Confetti
+                79, //Weapon Imbue Poison
+                87, //Cozy Fire - Yes, it works
+                89, //Heart Lamp
+                93, //Ammo Box
+                //95 - 100 - Beetle armor buffs - Won't stay
+                104, //Mining
+                105, //Heartreach
+                106, //Calm
+                107, //Builder
+                108, //Titan
+                109, //Flipper
+                110, //Summoning
+                111, //Dangersense
+                112, //Ammo Reservation
+                113, //Lifeforce
+                114, //Endurance
+                115, //Rage
+                116, //Inferno
+                117, //Wrath 
+                //118 - Minecart - Skipping all minecarts
+                119, //Lovestruck
+                121, //Fishing
+                122, //Sonar
+                123, //Crate
+                124, //Warmth
+                146, //Happy!
+                //147 - Banner - Works, but useless
+                150, //Bewitched
+                151, //Life Drain
+                157, //Peace Candle
+                158, //Star in a Bottle
+                159, //Sharpened
+                165 //Dryad's Blessing - Makes slimes fly!
+                //170-181 - 1.3 armors - Doesn't Stay
+            } },
+            new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", isperma = false, buffIDs = new List<int>() {
+                19, //Shadow Orb
+                27, //Fairy
+                //28 - Werewolf - Client-Activated Only
+                40, //Pet Bunny
+                41, //Baby Penguin
+                42, //Pet Turtle
+                45, //Baby Eater
+                49, //Pygmies
+                50, //Baby Skeletron Head
+                51, //Baby Hornet
+                52, //Tiki Spirit
+                53, //Pet Lizard
+                54, //Pet Parrot
+                55, //Baby Truffle
+                56, //Pet Sapling
+                57, //Wisp
+                61, //Baby Dinosaur
+                64, //Baby Slime
+                65, //Eyeball Spring
+                66, //Baby Snowman
+                81, //Pet Spider
+                82, //Squashling
+                //83 - Ravens - Client-Activated Only
+                84, //Black Cat
+                85, //Cursed Sapling
+                90, //Rudolph
+                91, //Puppy
+                92, //Baby Grinch
+                101, //Fairy
+                102, //Fairy
+                //126 - Imp - Client-Activated Only
+                127, //Zephyr Fish
+                128, //Bunny Mount
+                129, //Pigron Mount
+                130, //Slime Mount
+                131, //Turtle Mount
+                132, //Bee Mount
+                //133 - Spider - Client-Activated Only
+                //134 - Twins - Client-Activated Only
+                //135 - Pirate - Client-Activated Only
+                136, //Mini Minotaur
+                //139 - Sharknado - Client-Activated Only
+                //140 - UFO (Minion) - Client-Activated Only
+                141, //UFO (Mount)
+                142, //Drill Mount
+                143, //Scutlix Mount
+                //161 - Deadly Sphere - Client-Activated Only
+                152, //Magic Lantern
+                154, //Baby Face Monster
+                155, //Crimson Heart
+                //161 - Deadly Sphere - Client-Activated Only
+                162, //Unicorn Mount
+                168, //Cute Fishron
+                //182 - Stardust Cell - Client-Activated Only
+                //187 - Stardust Guardian - Client-Activated Only
+                //188 - Stardust Dragon - Client-Activated Only
+                190 // Suspicious Looking Eyea
+            }},
+            new BuffGroup() { groupName = "debuffs", groupPerm = "debuffs", isperma = true, buffIDs = new List<int>() {
+                //20 - Poisoned - Client-Activated Only
+                21, //Potion Sickness
+                //22 - Darkness - Client-Activated Only
+                //23 - Cursed - Client-Activated Only
+                24, //On Fire!
+                25, //Tipsy
+                //30 - Bleeding - Client-Activated Only
+                //31 - Confused - Client-Activated Only
+                //32 - Slow - Client-Activated Only
+                //33 - Weak - Client-Activated Only
+                //35 - Silenced - Client-Activated Only
+                //36 - Broken Armor - Client-Activated Only
+                //37 - Horrified - Client-Activated Only
+                //38 - The Tongue - Client-Activated Only
+                39, // Cursed Inferno
+                //46 - Chilled - Client-Activated Only
+                47, //Frozen
+                67, //Burning
+                //68 - Suffocation - No Way To Remove Once Active!
+                69, //Ichor
+                70, //Venoma 
+                72, //Midas
+                80, //Blackout
+                86, //Water Candle - It actually works :o
+                88, //Chaos State
+                94, //Mana Sickness - Makes magic useless!
+                103, //Wet
+                137, //Slime
+                144, //Electrified
+                145, //Moon Bite
+                148, //Feral Bite
+                149, //Webbed
+                //153 - Shadowflame - Doesn't affect humans
+                156, //Stoned
+                160, //Dazed
+                163, //Obstructed - My favorite buff :)
+                164 //Distroted - Also a cool buff
+                //169 - Penetrated - Doesn't affect humans
+                //183 - Celled - Doesn't affect humans
+                //186 - Dryad's Bane - Doesn't affect humans
+                //189 - Daybroken - Doesn't affect humans
+            }}
         };
 
         public Dictionary<string, List<int>> regionbuffs = new Dictionary<string, List<int>>()

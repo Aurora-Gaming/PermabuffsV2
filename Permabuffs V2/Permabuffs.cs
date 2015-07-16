@@ -22,7 +22,7 @@ namespace Permabuffs_V2
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(4, 0, 1, 1); } }
+        public override Version Version { get { return new Version(4, 0, 2, 0); } }
 
         private static IDbConnection db;
 
@@ -207,7 +207,7 @@ namespace Permabuffs_V2
                     {
                         foreach (int buff in kvp.Value)
                         {
-                            TShock.Players[i].SetBuff(buff, 18000);
+                            TShock.Players[i].SetBuff(buff, 1000);
                         }
                     }
                 }
@@ -287,7 +287,7 @@ namespace Permabuffs_V2
                     return;
                 }
 
-                if (bufftype > 139 || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 139).
+                if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190 (1.3.0.5)).
                     args.Player.SendErrorMessage("Invalid buff ID!");
 
                 if (isperma)
@@ -419,7 +419,7 @@ namespace Permabuffs_V2
 
                     string perm = "pb." + buffgroup;
 
-                    if (bufftype > 139 || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 139).
+                    if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190 (1.3.0.5)).
                         args.Player.SendErrorMessage("Invalid buff ID!");
 
                     if (isperma)
@@ -669,7 +669,7 @@ namespace Permabuffs_V2
                     bufftype = bufftypelist[0];
             }
 
-            if (bufftype > 139 || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 139).
+            if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190).
                 args.Player.SendErrorMessage("Invalid buff ID!");
 
             string buffgroup = null;
