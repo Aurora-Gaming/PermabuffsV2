@@ -16,6 +16,11 @@ namespace Permabuffs_V2
         public bool isperma;
         public List<int> buffIDs;
     }
+    public class RegionBuff
+    {
+        public string regionName;
+        public Dictionary<int, int> buffs;
+    }
     public class Config
     {
         public BuffGroup[] buffgroups = new BuffGroup[]
@@ -195,9 +200,9 @@ namespace Permabuffs_V2
             }}
         };
 
-        public Dictionary<string, List<int>> regionbuffs = new Dictionary<string, List<int>>()
+        public RegionBuff[] regionbuffs = new RegionBuff[]
         {
-            {"spawn", new List<int>() { 11 }}
+            new RegionBuff() { regionName = "spawn", buffs = new Dictionary<int,int>() { {11, 10}}}
         };
 
         public void Write(string path)

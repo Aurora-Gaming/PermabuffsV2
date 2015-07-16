@@ -29,7 +29,7 @@ namespace Permabuffs_V2
         private static Timer update;
         private static Dictionary<int, DBInfo> permas = new Dictionary<int, DBInfo>();
         private static List<int> globalbuffs = new List<int>();
-        private static Dictionary<int, List<int>> regionbuffs = new Dictionary<int, List<int>>();
+        private static List<RegionBuff> regionbuffs = new List<RegionBuff>();
         private static Dictionary<int, List<string>> hasAnnounced = new Dictionary<int, List<string>>();
 
         public static string configPath = Path.Combine(TShock.SavePath, "PermabuffsConfig.json");
@@ -146,23 +146,34 @@ namespace Permabuffs_V2
 
         public void OnRegionEnter(RegionHooks.RegionEnteredEventArgs args)
         {
-            KeyValuePair<string, List<int>> regionkvp;
+            RegionBuff rb = Array.Find(config.regionbuffs, p => p.regionName == args.Region.Name && p.buffs.Count > 0);
 
-            regionkvp = new KeyValuePair<string, List<int>>("null", new List<int>() { 0 });
+            if (rb == null)
+                return;
 
-            foreach (KeyValuePair<string, List<int>> kvp in config.regionbuffs)
-            {
-                if (kvp.Key == args.Region.Name && kvp.Value.Count > 0)
-                {
-                    regionkvp = kvp;
-                }
-            }
+            if (hasAnnounced[args.Player.Index].Contains(args.Region.Name))
+                return;
 
-            if (regionkvp.Key != "null" && !hasAnnounced[args.Player.Index].Contains(args.Region.Name))
-            {
-                args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", regionkvp.Value.Select(p => Main.buffName[p])));
-                hasAnnounced[args.Player.Index].Add(args.Region.Name);
-            }
+            args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", rb.buffs.Keys.Select(p => Main.buffName[p])));
+            hasAnnounced[args.Player.Index].Add(args.Region.Name);
+
+            //KeyValuePair<string, List<int>> regionkvp;
+
+            //regionkvp = new KeyValuePair<string, List<int>>("null", new List<int>() { 0 });
+
+            //foreach (RegionBuff rb in config.regionbuffs)
+            //{
+            //    if (rb.regionName == args.Region.Name && rb.buffIDs.Count > 0)
+            //    {
+            //        regionkvp = kvp;
+            //    }
+            //}
+
+            //if (regionkvp.Key != "null" && !hasAnnounced[args.Player.Index].Contains(args.Region.Name))
+            //{
+            //    args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", regionkvp.Value.Select(p => Main.buffName[p])));
+            //    hasAnnounced[args.Player.Index].Add(args.Region.Name);
+            //}
         }
 
         public void OnLeave(LeaveEventArgs args)
@@ -198,19 +209,29 @@ namespace Permabuffs_V2
                 if (TShock.Players[i].CurrentRegion == null)
                     continue;
 
-                foreach (KeyValuePair<string, List<int>> kvp in config.regionbuffs)
-                {
-                    if (kvp.Key == null || kvp.Key == "null" || kvp.Value.Count == 0)
-                        continue;
+                RegionBuff rb = Array.Find(config.regionbuffs, p => TShock.Players[i].CurrentRegion.Name == p.regionName && p.buffs.Count > 0);
 
-                    if (TShock.Players[i].CurrentRegion.Name == kvp.Key)
+                if (rb != null)
+                {
+                    foreach (KeyValuePair<int, int> kvp in rb.buffs)
                     {
-                        foreach (int buff in kvp.Value)
-                        {
-                            TShock.Players[i].SetBuff(buff, 1000);
-                        }
+                        TShock.Players[i].SetBuff(kvp.Key, kvp.Value * 60);
                     }
                 }
+
+                //foreach (KeyValuePair<string, List<int>> kvp in config.regionbuffs)
+                //{
+                //    if (kvp.Key == null || kvp.Key == "null" || kvp.Value.Count == 0)
+                //        continue;
+
+                //    if (TShock.Players[i].CurrentRegion.Name == kvp.Key)
+                //    {
+                //        foreach (int buff in kvp.Value)
+                //        {
+                //            TShock.Players[i].SetBuff(buff, 1000);
+                //        }
+                //    }
+                //}
             }
         }
         #endregion
@@ -502,9 +523,9 @@ namespace Permabuffs_V2
         {
             //regionbuff <add/del> <region> <buff>
 
-            if (args.Parameters.Count != 3)
+            if (args.Parameters.Count < 3 || args.Parameters.Count > 4)
             {
-                args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+                args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID> [duration]", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
                 return;
             }
 
@@ -513,6 +534,12 @@ namespace Permabuffs_V2
                 string regionname = args.Parameters[1];
                 Region region = TShock.Regions.GetRegionByName(regionname);
                 string buffinput = args.Parameters[2];
+                if (args.Parameters.Count != 4)
+                {
+                    args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID> [duration]", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+                    return;
+                }
+                string durationinput = args.Parameters[3];
                 int bufftype = -1;
 
                 if (region == null)
@@ -546,28 +573,68 @@ namespace Permabuffs_V2
                     return;
                 }
 
-                if (config.regionbuffs.ContainsKey(region.Name))
+                int duration = -1;
+
+                if (!int.TryParse(durationinput, out duration) || (duration < 1 || duration > 540))
                 {
-                    if (config.regionbuffs[region.Name].Contains(bufftype))
+                    args.Player.SendErrorMessage("Invalid duration!");
+                    return;
+                }
+
+                bool found = false;
+
+                for (int i = 0; i < config.regionbuffs.Length; i++)
+                {
+                    if (config.regionbuffs[i].regionName == region.Name)
                     {
-                        args.Player.SendErrorMessage("Region {0} already contains buff {1}!", region.Name, Main.buffName[bufftype]);
-                        return;
-                    }
-                    else
-                    {
-                        config.regionbuffs[region.Name].Add(bufftype);
-                        args.Player.SendSuccessMessage("Added buff {0} to region {1}!", Main.buffName[bufftype], region.Name);
-                        config.Write(configPath);
-                        return;
+                        found = true;
+                        if (config.regionbuffs[i].buffs.Keys.Contains(bufftype))
+                        {
+                            args.Player.SendErrorMessage("Region {0} already contains buff {1}!", region.Name, Main.buffName[bufftype]);
+                            return;
+                        }
+                        else
+                        {
+                            config.regionbuffs[i].buffs.Add(bufftype, duration);
+                            args.Player.SendSuccessMessage("Added buff {0} to region {1} with a duration of {2} seconds!", Main.buffName[bufftype], region.Name, duration.ToString());
+                            config.Write(configPath);
+                            return;
+                        }
                     }
                 }
-                else
+
+                if (!found)
                 {
-                    config.regionbuffs.Add(region.Name, new List<int>() { bufftype });
-                    args.Player.SendSuccessMessage("Added buff {0} to region {1}!", Main.buffName[bufftype], region.Name);
+                    List<RegionBuff> temp = config.regionbuffs.ToList();
+                    temp.Add(new RegionBuff() { buffs = new Dictionary<int, int>() { { bufftype, duration } }, regionName = region.Name });
+                    config.regionbuffs = temp.ToArray();
+                    args.Player.SendSuccessMessage("Added buff {0} to region {1} with a duration of {2} seconds!", Main.buffName[bufftype], region.Name, duration.ToString());
                     config.Write(configPath);
                     return;
                 }
+
+                //if (config.regionbuffs.ContainsKey(region.Name))
+                //{
+                //    if (config.regionbuffs[region.Name].Contains(bufftype))
+                //    {
+                //        args.Player.SendErrorMessage("Region {0} already contains buff {1}!", region.Name, Main.buffName[bufftype]);
+                //        return;
+                //    }
+                //    else
+                //    {
+                //        config.regionbuffs[region.Name].Add(bufftype);
+                //        args.Player.SendSuccessMessage("Added buff {0} to region {1}!", Main.buffName[bufftype], region.Name);
+                //        config.Write(configPath);
+                //        return;
+                //    }
+                //}
+                //else
+                //{
+                //    config.regionbuffs.Add(region.Name, new List<int>() { bufftype });
+                //    args.Player.SendSuccessMessage("Added buff {0} to region {1}!", Main.buffName[bufftype], region.Name);
+                //    config.Write(configPath);
+                //    return;
+                //}
             }
 
             if (args.Parameters[0] == "del")
@@ -608,30 +675,52 @@ namespace Permabuffs_V2
                     return;
                 }
 
-                if (config.regionbuffs.ContainsKey(region.Name))
+                bool found = false;
+
+                for (int i = 0; i < config.regionbuffs.Length; i++ )
                 {
-                    if (config.regionbuffs[region.Name].Contains(bufftype))
+                    if (config.regionbuffs[i].regionName == region.Name)
                     {
-                        config.regionbuffs[region.Name].Remove(bufftype);
-                        args.Player.SendSuccessMessage("Removed buff {0} from region {1}!", Main.buffName[bufftype], region.Name);
-
-                        if (config.regionbuffs[region.Name].Count == 0)
-                            config.regionbuffs.Remove(region.Name);
-
-                        config.Write(configPath);
-                        return;
-                    }
-                    else
-                    {
-                        args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
-                        return;
+                        if (config.regionbuffs[i].buffs.ContainsKey(bufftype))
+                        {
+                            config.regionbuffs[i].buffs.Remove(bufftype);
+                            args.Player.SendSuccessMessage("Removed buff {0} from region {1}!", Main.buffName[bufftype], region.Name);
+                            config.Write(configPath);
+                            found = true;
+                            return;
+                        }
                     }
                 }
-                else
+
+                if (!found)
                 {
                     args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
                     return;
                 }
+                    //if (config.regionbuffs.ContainsKey(region.Name))
+                    //{
+                    //    if (config.regionbuffs[region.Name].Contains(bufftype))
+                    //    {
+                    //        config.regionbuffs[region.Name].Remove(bufftype);
+                    //        args.Player.SendSuccessMessage("Removed buff {0} from region {1}!", Main.buffName[bufftype], region.Name);
+
+                    //        if (config.regionbuffs[region.Name].Count == 0)
+                    //            config.regionbuffs.Remove(region.Name);
+
+                    //        config.Write(configPath);
+                    //        return;
+                    //    }
+                    //    else
+                    //    {
+                    //        args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
+                    //        return;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
+                    //    return;
+                    //}
             }
 
             args.Player.SendErrorMessage("Invalid syntax: {0}regionbuff <add/del> <region name> <buff name/ID>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
