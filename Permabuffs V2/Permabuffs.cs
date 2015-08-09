@@ -16,13 +16,13 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-    [ApiVersion(1,20)]
+    [ApiVersion(1, 21)]
     public class Permabuffs : TerrariaPlugin
     {
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(4, 0, 4, 0); } }
+        public override Version Version { get { return new Version(4, 0, 5, 0); } }
 
         private static IDbConnection db;
 
