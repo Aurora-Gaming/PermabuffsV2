@@ -824,6 +824,7 @@ namespace Permabuffs_V2
                 foreach (KeyValuePair<int, DBInfo> kvp in permas)
                 {
                     kvp.Value.bufflist.Clear();
+                    clearDB();
                 }
                 args.Player.SendSuccessMessage("All permabuffs have been deactivated for all players.");
                 if (!args.Silent)
@@ -840,6 +841,7 @@ namespace Permabuffs_V2
                 }
                 permas[args.Player.User.ID].bufflist.Clear();
 
+                clearDB(args.Player.User.ID);
                 args.Player.SendSuccessMessage("All of your permabuffs have been deactivated.");
             }
         }
