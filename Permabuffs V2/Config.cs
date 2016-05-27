@@ -153,7 +153,8 @@ namespace Permabuffs_V2
                 //182 - Stardust Cell - Client-Activated Only
                 //187 - Stardust Guardian - Client-Activated Only
                 //188 - Stardust Dragon - Client-Activated Only
-                190 // Suspicious Looking Eyea
+                190, // Suspicious Looking Eyea
+                191 //Companion Cube
             }},
             new BuffGroup() { groupName = "debuffs", groupPerm = "debuffs", isperma = true, buffIDs = new List<int>() {
                 //20 - Poisoned - Client-Activated Only

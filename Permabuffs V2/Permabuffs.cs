@@ -16,13 +16,13 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-    [ApiVersion(1, 22)]
+    [ApiVersion(1, 23)]
     public class Permabuffs : TerrariaPlugin
     {
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(4, 0, 6, 0); } }
+        public override Version Version { get { return new Version(4, 0, 7, 0); } }
 
         private static IDbConnection db;
 
@@ -158,24 +158,6 @@ namespace Permabuffs_V2
 
             args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", rb.buffs.Keys.Select(p => Main.buffName[p])));
             hasAnnounced[args.Player.Index].Add(args.Region.Name);
-
-            //KeyValuePair<string, List<int>> regionkvp;
-
-            //regionkvp = new KeyValuePair<string, List<int>>("null", new List<int>() { 0 });
-
-            //foreach (RegionBuff rb in config.regionbuffs)
-            //{
-            //    if (rb.regionName == args.Region.Name && rb.buffIDs.Count > 0)
-            //    {
-            //        regionkvp = kvp;
-            //    }
-            //}
-
-            //if (regionkvp.Key != "null" && !hasAnnounced[args.Player.Index].Contains(args.Region.Name))
-            //{
-            //    args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", regionkvp.Value.Select(p => Main.buffName[p])));
-            //    hasAnnounced[args.Player.Index].Add(args.Region.Name);
-            //}
         }
 
         public void OnLeave(LeaveEventArgs args)
@@ -232,20 +214,6 @@ namespace Permabuffs_V2
                         TShock.Players[i].SetBuff(permas[id].bufflist[k], 18000);
                     }
                 }
-
-                //foreach (KeyValuePair<string, List<int>> kvp in config.regionbuffs)
-                //{
-                //    if (kvp.Key == null || kvp.Key == "null" || kvp.Value.Count == 0)
-                //        continue;
-
-                //    if (TShock.Players[i].CurrentRegion.Name == kvp.Key)
-                //    {
-                //        foreach (int buff in kvp.Value)
-                //        {
-                //            TShock.Players[i].SetBuff(buff, 1000);
-                //        }
-                //    }
-                //}
             }
         }
         #endregion
@@ -322,7 +290,7 @@ namespace Permabuffs_V2
                     return;
                 }
 
-                if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190 (1.3.0.5)).
+                if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
                     args.Player.SendErrorMessage("Invalid buff ID!");
 
                 if (isperma)
@@ -456,7 +424,7 @@ namespace Permabuffs_V2
 
                     string perm = "pb." + buffgroup;
 
-                    if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190 (1.3.0.5)).
+                    if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
                         args.Player.SendErrorMessage("Invalid buff ID!");
 
                     if (isperma)
@@ -645,29 +613,6 @@ namespace Permabuffs_V2
                     config.Write(configPath);
                     return;
                 }
-
-                //if (config.regionbuffs.ContainsKey(region.Name))
-                //{
-                //    if (config.regionbuffs[region.Name].Contains(bufftype))
-                //    {
-                //        args.Player.SendErrorMessage("Region {0} already contains buff {1}!", region.Name, Main.buffName[bufftype]);
-                //        return;
-                //    }
-                //    else
-                //    {
-                //        config.regionbuffs[region.Name].Add(bufftype);
-                //        args.Player.SendSuccessMessage("Added buff {0} to region {1}!", Main.buffName[bufftype], region.Name);
-                //        config.Write(configPath);
-                //        return;
-                //    }
-                //}
-                //else
-                //{
-                //    config.regionbuffs.Add(region.Name, new List<int>() { bufftype });
-                //    args.Player.SendSuccessMessage("Added buff {0} to region {1}!", Main.buffName[bufftype], region.Name);
-                //    config.Write(configPath);
-                //    return;
-                //}
             }
 
             if (args.Parameters[0] == "del")
@@ -730,30 +675,6 @@ namespace Permabuffs_V2
                     args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
                     return;
                 }
-                    //if (config.regionbuffs.ContainsKey(region.Name))
-                    //{
-                    //    if (config.regionbuffs[region.Name].Contains(bufftype))
-                    //    {
-                    //        config.regionbuffs[region.Name].Remove(bufftype);
-                    //        args.Player.SendSuccessMessage("Removed buff {0} from region {1}!", Main.buffName[bufftype], region.Name);
-
-                    //        if (config.regionbuffs[region.Name].Count == 0)
-                    //            config.regionbuffs.Remove(region.Name);
-
-                    //        config.Write(configPath);
-                    //        return;
-                    //    }
-                    //    else
-                    //    {
-                    //        args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
-                    //        return;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
-                    //    return;
-                    //}
             }
 
             args.Player.SendErrorMessage("Invalid syntax: {0}regionbuff <add/del> <region name> <buff name/ID>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
