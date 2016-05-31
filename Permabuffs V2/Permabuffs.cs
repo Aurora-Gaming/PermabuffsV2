@@ -43,7 +43,7 @@ namespace Permabuffs_V2
         #region Initalize/Dispose
         public override void Initialize()
         {
-            DBConnect();
+            
 
             ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
             ServerApi.Hooks.NetGreetPlayer.Register(this, OnGreet);
@@ -71,6 +71,8 @@ namespace Permabuffs_V2
         #region Hooks
         public void OnInitialize(EventArgs args)
         {
+            DBConnect();
+
             config.Write(configPath);
 
             update = new Timer { Interval = 1000, AutoReset = true, Enabled = true };
