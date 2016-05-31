@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Timers;
 using Terraria;
 using TerrariaApi.Server;
@@ -16,13 +15,13 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-    [ApiVersion(1, 23)]
+    [ApiVersion(1, 24)]
     public class Permabuffs : TerrariaPlugin
     {
         public override string Name { get { return "Permabuffs"; } }
         public override string Author { get { return "Zaicon"; } }
         public override string Description { get { return "A plugin for permabuffs."; } }
-        public override Version Version { get { return new Version(4, 0, 7, 0); } }
+        public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
         private static IDbConnection db;
 
