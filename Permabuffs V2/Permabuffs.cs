@@ -284,7 +284,7 @@ namespace Permabuffs_V2
 
                 string perm = "pb." + buffperm;
 
-                if (!args.Player.Group.HasPermission(perm) && !args.Player.Group.HasPermission("pb.useall"))
+                if (!args.Player.HasPermission(perm) && !args.Player.HasPermission("pb.useall"))
                 {
                     args.Player.SendErrorMessage("You do not have permission to buff yourself with this buff!");
                     return;
@@ -344,10 +344,10 @@ namespace Permabuffs_V2
                 {
                     IEnumerable<string> bufflist;
 
-                    if (args.Player.Group.HasPermission("pb.useall"))
+                    if (args.Player.HasPermission("pb.useall"))
                         bufflist = (from buffgroups in config.buffgroups select buffgroups.groupName);
                     else
-                        bufflist = (from buffgroups in config.buffgroups where args.Player.Group.HasPermission("pb." + buffgroups.groupPerm) select buffgroups.groupName);
+                        bufflist = (from buffgroups in config.buffgroups where args.Player.HasPermission("pb." + buffgroups.groupPerm) select buffgroups.groupName);
 
                     args.Player.SendInfoMessage("Available buff groups: {0}", string.Join(", ", bufflist));
 
@@ -737,7 +737,7 @@ namespace Permabuffs_V2
         {
             if (args.Parameters.Count == 1 && (args.Parameters[0] == "*" || args.Parameters[0] == "all"))
             {
-                if (!args.Player.Group.HasPermission("pb.clear"))
+                if (!args.Player.HasPermission("pb.clear"))
                 {
                     args.Player.SendErrorMessage("You do not have permission to clear all permabuffs.");
                     return;
