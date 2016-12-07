@@ -6,8 +6,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using Terraria;
 using TerrariaApi.Server;
@@ -17,7 +15,7 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-    [ApiVersion(1, 25)]
+	[ApiVersion(1, 26)]
     public class Permabuffs : TerrariaPlugin
     {
         public override string Name { get { return "Permabuffs"; } }

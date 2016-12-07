@@ -1,33 +1,31 @@
-﻿﻿using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TShockAPI;
 
 namespace Permabuffs_V2
 {
-    public class BuffGroup
-    {
-        public string groupName;
-        public string groupPerm;
-        public bool isperma;
-        public List<int> buffIDs;
-    }
-    public class RegionBuff
-    {
-        public string regionName;
-        public Dictionary<int, int> buffs;
-    }
-    public class Config
-    {
-        public BuffGroup[] buffgroups = new BuffGroup[]
-        {
+	public class BuffGroup
+	{
+		public string groupName;
+		public string groupPerm;
+		public bool isperma;
+		public List<int> buffIDs;
+	}
+	public class RegionBuff
+	{
+		public string regionName;
+		public Dictionary<int, int> buffs;
+	}
+	public class Config
+	{
+		public BuffGroup[] buffgroups = new BuffGroup[]
+		{
             //34 - Merfolk - Seems broken when used by command.
-            new BuffGroup() { groupName = "probuffs", groupPerm = "probuffs", isperma = true, buffIDs = new List<int>() { 
-                1, // Obsidian Skin
+            new BuffGroup()
+			{
+				groupName = "probuffs", groupPerm = "probuffs", isperma = true, buffIDs = new List<int>()
+				{
+				1, // Obsidian Skin
                 2, //Regeneration
                 3, //Swiftness
                 4, //Gills
@@ -93,11 +91,23 @@ namespace Permabuffs_V2
                 157, //Peace Candle
                 158, //Star in a Bottle
                 159, //Sharpened
-                165 //Dryad's Blessing - Makes slimes fly!
-                //170-181 - 1.3 armors - Doesn't Stay
-            } },
-            new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", isperma = false, buffIDs = new List<int>() {
-                19, //Shadow Orb
+                165, //Dryad's Blessing - Makes slimes fly!
+				//170-172 - Solar Blaze - Doesn't Stay
+				173, //Life Nebula (1)
+				174, //Life Nebula (2)
+				175, //Life Nebula (3)
+				176, //Mana Nebula (1)
+				177, //Mana Nebula (2)
+				178, //Mana Nebula (3)
+				179, //Damage Nebula (1)
+				180, //Damage Nebula (2)
+				181, //Damage Nebula (3)
+				198, //Striking Moment
+				205 //Ballista Panic
+				}
+			},
+			new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", isperma = false, buffIDs = new List<int>() {
+				19, //Shadow Orb
                 27, //Fairy
                 //28 - Werewolf - Client-Activated Only
                 40, //Pet Bunny
@@ -154,9 +164,15 @@ namespace Permabuffs_V2
                 //187 - Stardust Guardian - Client-Activated Only
                 //188 - Stardust Dragon - Client-Activated Only
                 190, // Suspicious Looking Eyea
-                191 //Companion Cube
+                191, //Companion Cube
+				193, //Basilisk Mount
+				200, //Propeller Gato
+				201, //Flickerwick
+				202 //Hoardagron
             }},
-            new BuffGroup() { groupName = "debuffs", groupPerm = "debuffs", isperma = true, buffIDs = new List<int>() {
+			new BuffGroup()
+			{
+				groupName = "debuffs", groupPerm = "debuffs", isperma = true, buffIDs = new List<int>() {
                 //20 - Poisoned - Client-Activated Only
                 21, //Potion Sickness
                 //22 - Darkness - Client-Activated Only
@@ -193,29 +209,38 @@ namespace Permabuffs_V2
                 156, //Stoned
                 160, //Dazed
                 163, //Obstructed - My favorite buff :)
-                164 //Distroted - Also a cool buff
+                164, //Distroted - Also a cool buff
                 //169 - Penetrated - Doesn't affect humans
                 //183 - Celled - Doesn't affect humans
                 //186 - Dryad's Bane - Doesn't affect humans
                 //189 - Daybroken - Doesn't affect humans
-            }}
-        };
+				192, //Sugar Rush
+				194, //Wind Pushed
+				195, //Withered Armor
+				196, //Withered Weapon
+				197, //Oozed
+				//199 - Creative Shock - Shows up but doesn't actually disable building
+				203 //Betsy's Curse
+					//204 - Oiled - Doesn't appear to have any effect
+				}
+			}
+		};
 
-        public RegionBuff[] regionbuffs = new RegionBuff[]
-        {
-            new RegionBuff() { regionName = "spawn", buffs = new Dictionary<int,int>() { {11, 10}}}
-        };
+		public RegionBuff[] regionbuffs = new RegionBuff[]
+		{
+			new RegionBuff() { regionName = "spawn", buffs = new Dictionary<int,int>() { {11, 10}}}
+		};
 
-        public void Write(string path)
-        {
-            File.WriteAllText(path, JsonConvert.SerializeObject(Permabuffs.config, Formatting.Indented));
-        }
+		public void Write(string path)
+		{
+			File.WriteAllText(path, JsonConvert.SerializeObject(Permabuffs.config, Formatting.Indented));
+		}
 
-        public static Config Read(string path)
-        {
-            return !File.Exists(path)
-                ? new Config()
-                : JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
-        }
-    }
+		public static Config Read(string path)
+		{
+			return !File.Exists(path)
+				? new Config()
+				: JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
+		}
+	}
 }
