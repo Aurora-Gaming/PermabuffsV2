@@ -152,6 +152,12 @@ namespace Permabuffs_V2
             if (rb == null)
                 return;
 
+            if (!hasAnnounced.ContainsKey(args.Player.Index))
+            {
+                TShock.Log.ConsoleError("Error in PermabuffsV2 onRegionEnter()!");
+                return;
+            }
+
             if (hasAnnounced[args.Player.Index].Contains(args.Region.Name))
                 return;
 
