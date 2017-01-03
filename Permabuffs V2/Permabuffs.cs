@@ -15,7 +15,7 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-	[ApiVersion(1, 26)]
+	[ApiVersion(2,0)]
     public class Permabuffs : TerrariaPlugin
     {
         public override string Name { get { return "Permabuffs"; } }
