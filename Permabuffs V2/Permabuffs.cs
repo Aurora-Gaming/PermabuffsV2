@@ -15,7 +15,7 @@ using TShockAPI.Hooks;
 
 namespace Permabuffs_V2
 {
-	[ApiVersion(2, 0)]
+	[ApiVersion(2, 1)]
 	public class Permabuffs : TerrariaPlugin
 	{
 		public override string Name { get { return "Permabuffs"; } }
@@ -91,7 +91,7 @@ namespace Permabuffs_V2
 				return;
 
 			if (globalbuffs.Count > 0)
-				TShock.Players[args.Who].SendInfoMessage("This server has the following global permabuffs active: {0}", string.Join(", ", globalbuffs.Select(p => Main.buffName[p])));
+				TShock.Players[args.Who].SendInfoMessage("This server has the following global permabuffs active: {0}", string.Join(", ", globalbuffs.Select(p => TShock.Utils.GetBuffName(p))));
 
 			if (!hasAnnounced.ContainsKey(args.Who))
 				hasAnnounced.Add(args.Who, new List<string>());
@@ -159,7 +159,7 @@ namespace Permabuffs_V2
 			if (hasAnnounced[args.Player.Index].Contains(args.Region.Name))
 				return;
 
-			args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", rb.buffs.Keys.Select(p => Main.buffName[p])));
+			args.Player.SendSuccessMessage("You have entered a region with the following buffs enabled: {0}", string.Join(", ", rb.buffs.Keys.Select(p => TShock.Utils.GetBuffName(p))));
 			hasAnnounced[args.Player.Index].Add(args.Region.Name);
 		}
 
@@ -264,7 +264,7 @@ namespace Permabuffs_V2
 			{
 				permas[playerid].bufflist.Remove(bufftype);
 				updateBuffs(playerid, permas[playerid].bufflist);
-				args.Player.SendInfoMessage("You have removed the " + Main.buffName[bufftype] + " permabuff.");
+				args.Player.SendInfoMessage("You have removed the " + TShock.Utils.GetBuffName(bufftype) + " permabuff.");
 				return;
 			}
 			else
@@ -300,12 +300,12 @@ namespace Permabuffs_V2
 				{
 					permas[playerid].bufflist.Add(bufftype);
 					updateBuffs(playerid, permas[playerid].bufflist);
-					args.Player.SendSuccessMessage("You have permabuffed yourself with the {0} buff! Re-type this command to disable the buff.", Main.buffName[bufftype]);
+					args.Player.SendSuccessMessage("You have permabuffed yourself with the {0} buff! Re-type this command to disable the buff.", TShock.Utils.GetBuffName(bufftype));
 				}
 				else
 				{
 					args.Player.SetBuff(bufftype);
-					args.Player.SendSuccessMessage("You have given yourself the {0} buff.", Main.buffName[bufftype]);
+					args.Player.SendSuccessMessage("You have given yourself the {0} buff.", TShock.Utils.GetBuffName(bufftype));
 				}
 			}
 		}
@@ -403,9 +403,9 @@ namespace Permabuffs_V2
 				{
 					permas[playerid].bufflist.Remove(bufftype);
 					updateBuffs(playerid, permas[playerid].bufflist);
-					args.Player.SendInfoMessage("You have removed the {0} permabuff for {1}.", Main.buffName[bufftype], players[0].Name);
+					args.Player.SendInfoMessage("You have removed the {0} permabuff for {1}.", TShock.Utils.GetBuffName(bufftype), players[0].Name);
 					if (!args.Silent)
-						players[0].SendInfoMessage("{0} has removed your {1} permabuff.", args.Player.Name, Main.buffName[bufftype]);
+						players[0].SendInfoMessage("{0} has removed your {1} permabuff.", args.Player.Name, TShock.Utils.GetBuffName(bufftype));
 				}
 				else
 				{
@@ -434,16 +434,16 @@ namespace Permabuffs_V2
 					{
 						permas[playerid].bufflist.Add(bufftype);
 						updateBuffs(playerid, permas[playerid].bufflist);
-						args.Player.SendSuccessMessage("You have permabuffed {0} with the {1} buff!", players[0].Name, Main.buffName[bufftype]);
+						args.Player.SendSuccessMessage("You have permabuffed {0} with the {1} buff!", players[0].Name, TShock.Utils.GetBuffName(bufftype));
 						if (!args.Silent)
-							players[0].SendInfoMessage("{0} has permabuffed you with the {1} buff!", args.Player.Name, Main.buffName[bufftype]);
+							players[0].SendInfoMessage("{0} has permabuffed you with the {1} buff!", args.Player.Name, TShock.Utils.GetBuffName(bufftype));
 					}
 					else
 					{
 						args.Player.SetBuff(bufftype);
-						args.Player.SendSuccessMessage("You have given {0} the {1} buff!", players[0].Name, Main.buffName[bufftype]);
+						args.Player.SendSuccessMessage("You have given {0} the {1} buff!", players[0].Name, TShock.Utils.GetBuffName(bufftype));
 						if (!args.Silent)
-							players[0].SendInfoMessage("{0} has given you the {1} buff!", args.Player.Name, Main.buffName[bufftype]);
+							players[0].SendInfoMessage("{0} has given you the {1} buff!", args.Player.Name, TShock.Utils.GetBuffName(bufftype));
 					}
 				}
 			}
@@ -564,7 +564,7 @@ namespace Permabuffs_V2
 
 					if (bufflist.Count > 1)
 					{
-						TShock.Utils.SendMultipleMatchError(args.Player, bufflist.Select(p => Main.buffName[p]));
+						TShock.Utils.SendMultipleMatchError(args.Player, bufflist.Select(p => TShock.Utils.GetBuffName(p)));
 						return;
 					}
 
@@ -594,13 +594,13 @@ namespace Permabuffs_V2
 						found = true;
 						if (config.regionbuffs[i].buffs.Keys.Contains(bufftype))
 						{
-							args.Player.SendErrorMessage("Region {0} already contains buff {1}!", region.Name, Main.buffName[bufftype]);
+							args.Player.SendErrorMessage("Region {0} already contains buff {1}!", region.Name, TShock.Utils.GetBuffName(bufftype));
 							return;
 						}
 						else
 						{
 							config.regionbuffs[i].buffs.Add(bufftype, duration);
-							args.Player.SendSuccessMessage("Added buff {0} to region {1} with a duration of {2} seconds!", Main.buffName[bufftype], region.Name, duration.ToString());
+							args.Player.SendSuccessMessage("Added buff {0} to region {1} with a duration of {2} seconds!", TShock.Utils.GetBuffName(bufftype), region.Name, duration.ToString());
 							config.Write(configPath);
 							return;
 						}
@@ -612,7 +612,7 @@ namespace Permabuffs_V2
 					List<RegionBuff> temp = config.regionbuffs.ToList();
 					temp.Add(new RegionBuff() { buffs = new Dictionary<int, int>() { { bufftype, duration } }, regionName = region.Name });
 					config.regionbuffs = temp.ToArray();
-					args.Player.SendSuccessMessage("Added buff {0} to region {1} with a duration of {2} seconds!", Main.buffName[bufftype], region.Name, duration.ToString());
+					args.Player.SendSuccessMessage("Added buff {0} to region {1} with a duration of {2} seconds!", TShock.Utils.GetBuffName(bufftype), region.Name, duration.ToString());
 					config.Write(configPath);
 					return;
 				}
@@ -643,7 +643,7 @@ namespace Permabuffs_V2
 
 					if (bufflist.Count > 1)
 					{
-						TShock.Utils.SendMultipleMatchError(args.Player, bufflist.Select(p => Main.buffName[p]));
+						TShock.Utils.SendMultipleMatchError(args.Player, bufflist.Select(p => TShock.Utils.GetBuffName(p)));
 						return;
 					}
 
@@ -665,7 +665,7 @@ namespace Permabuffs_V2
 						if (config.regionbuffs[i].buffs.ContainsKey(bufftype))
 						{
 							config.regionbuffs[i].buffs.Remove(bufftype);
-							args.Player.SendSuccessMessage("Removed buff {0} from region {1}!", Main.buffName[bufftype], region.Name);
+							args.Player.SendSuccessMessage("Removed buff {0} from region {1}!", TShock.Utils.GetBuffName(bufftype), region.Name);
 							config.Write(configPath);
 							found = true;
 							return;
@@ -675,7 +675,7 @@ namespace Permabuffs_V2
 
 				if (!found)
 				{
-					args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", Main.buffName[bufftype], region.Name);
+					args.Player.SendSuccessMessage("Buff {0} is not a region buff in region {1}!", TShock.Utils.GetBuffName(bufftype), region.Name);
 					return;
 				}
 			}
@@ -727,12 +727,12 @@ namespace Permabuffs_V2
 			else if (globalbuffs.Contains(bufftype))
 			{
 				globalbuffs.Remove(bufftype);
-				args.Player.SendSuccessMessage("{0} has been removed from the global permabuffs.", Main.buffName[bufftype]);
+				args.Player.SendSuccessMessage("{0} has been removed from the global permabuffs.", TShock.Utils.GetBuffName(bufftype));
 			}
 			else
 			{
 				globalbuffs.Add(bufftype);
-				args.Player.SendSuccessMessage("{0} has been activated as a global permabuff!", Main.buffName[bufftype]);
+				args.Player.SendSuccessMessage("{0} has been activated as a global permabuff!", TShock.Utils.GetBuffName(bufftype));
 			}
 		}
 
