@@ -58,7 +58,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuffIDs.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="DB.cs" />
     <Compile Include="DBInfo.cs" />
     <Compile Include="Permabuffs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

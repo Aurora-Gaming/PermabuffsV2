@@ -8,14 +8,15 @@ namespace Permabuffs_V2
 	{
 		public string groupName;
 		public string groupPerm;
-		public bool isperma;
 		public List<int> buffIDs;
 	}
+
 	public class RegionBuff
 	{
 		public string regionName;
 		public Dictionary<int, int> buffs;
 	}
+
 	public class Config
 	{
 		public BuffGroup[] buffgroups = new BuffGroup[]
@@ -23,7 +24,7 @@ namespace Permabuffs_V2
             //34 - Merfolk - Seems broken when used by command.
             new BuffGroup()
 			{
-				groupName = "probuffs", groupPerm = "probuffs", isperma = true, buffIDs = new List<int>()
+				groupName = "probuffs", groupPerm = "probuffs", buffIDs = new List<int>()
 				{
 				1, // Obsidian Skin
                 2, //Regeneration
@@ -106,7 +107,7 @@ namespace Permabuffs_V2
 				205 //Ballista Panic
 				}
 			},
-			new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", isperma = false, buffIDs = new List<int>() {
+			new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", buffIDs = new List<int>() {
 				19, //Shadow Orb
                 27, //Fairy
                 //28 - Werewolf - Client-Activated Only
@@ -172,7 +173,7 @@ namespace Permabuffs_V2
             }},
 			new BuffGroup()
 			{
-				groupName = "debuffs", groupPerm = "debuffs", isperma = true, buffIDs = new List<int>() {
+				groupName = "debuffs", groupPerm = "debuffs", buffIDs = new List<int>() {
                 //20 - Poisoned - Client-Activated Only
                 21, //Potion Sickness
                 //22 - Darkness - Client-Activated Only

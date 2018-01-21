@@ -23,10 +23,7 @@ namespace Permabuffs_V2
 		public override string Description { get { return "A plugin for permabuffs."; } }
 		public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
-		private static IDbConnection db;
-
 		private static Timer update;
-		private static Dictionary<int, DBInfo> permas = new Dictionary<int, DBInfo>();
 		private static List<int> globalbuffs = new List<int>();
 		private static List<RegionBuff> regionbuffs = new List<RegionBuff>();
 		private static Dictionary<int, List<string>> hasAnnounced = new Dictionary<int, List<string>>();
@@ -43,14 +40,13 @@ namespace Permabuffs_V2
 		#region Initalize/Dispose
 		public override void Initialize()
 		{
-			DBConnect();
-
 			ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
 			ServerApi.Hooks.NetGreetPlayer.Register(this, OnGreet);
 			ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
 			AccountHooks.AccountDelete += OnAccDelete;
 			PlayerHooks.PlayerPostLogin += OnPostLogin;
 			RegionHooks.RegionEntered += OnRegionEnter;
+			GeneralHooks.ReloadEvent += PBReload;
 		}
 
 		protected override void Dispose(bool Disposing)
@@ -63,6 +59,7 @@ namespace Permabuffs_V2
 				AccountHooks.AccountDelete -= OnAccDelete;
 				RegionHooks.RegionEntered -= OnRegionEnter;
 				PlayerHooks.PlayerPostLogin -= OnPostLogin;
+				GeneralHooks.ReloadEvent -= PBReload;
 			}
 			base.Dispose(Disposing);
 		}
@@ -71,7 +68,7 @@ namespace Permabuffs_V2
 		#region Hooks
 		public void OnInitialize(EventArgs args)
 		{
-			config.Write(configPath);
+			DB.Connect();
 
 			update = new Timer { Interval = 1000, AutoReset = true, Enabled = true };
 			update.Elapsed += OnElapsed;
@@ -79,7 +76,6 @@ namespace Permabuffs_V2
 			Commands.ChatCommands.Add(new Command("pb.use", PBuffs, "permabuff") { AllowServer = false, HelpText = "Buffs yourself with a buff permanently." });
 			Commands.ChatCommands.Add(new Command("pb.check", PBCheck, "buffcheck") { HelpText = "Lists the active permabuffs of the specified player." });
 			Commands.ChatCommands.Add(new Command("pb.give", PBGive, "gpermabuff") { HelpText = "Gives a player the specified permabuff." });
-			Commands.ChatCommands.Add(new Command("pb.reload", PBReload, "pbreload"));
 			Commands.ChatCommands.Add(new Command("pb.region", PBRegion, "regionbuff"));
 			Commands.ChatCommands.Add(new Command("pb.global", PBGlobal, "globalbuff"));
 			Commands.ChatCommands.Add(new Command("pb.use", PBClear, "clearbuffs") { HelpText = "Removes all permabuffs." });
@@ -101,53 +97,53 @@ namespace Permabuffs_V2
 
 			int id = TShock.Players[args.Who].User.ID;
 
-			if (!permas.ContainsKey(id))
+			if (!DB.PlayerBuffs.ContainsKey(id))
 			{
-				if (loadDBInfo(id))
+				if (DB.LoadUserBuffs(id))
 				{
-					if (permas[id].bufflist.Count > 0)
-						TShock.Players[args.Who].SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", permas[id].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
+					if (DB.PlayerBuffs[id].bufflist.Count > 0)
+						TShock.Players[args.Who].SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", DB.PlayerBuffs[id].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
 				}
 				else
-					createDBInfo(TShock.Players[args.Who].User.ID);
+					DB.AddNewUser(TShock.Players[args.Who].User.ID);
 			}
 			else
 			{
 				//loadDBInfo(args.Who);
-				if (permas[id].bufflist.Count > 0)
-					TShock.Players[args.Who].SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", permas[id].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
+				if (DB.PlayerBuffs[id].bufflist.Count > 0)
+					TShock.Players[args.Who].SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", DB.PlayerBuffs[id].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
 			}
 		}
 
 		public void OnPostLogin(PlayerPostLoginEventArgs args)
 		{
-			if (!permas.ContainsKey(args.Player.User.ID))
+			if (!DB.PlayerBuffs.ContainsKey(args.Player.User.ID))
 			{
-				if (loadDBInfo(args.Player.User.ID))
+				if (DB.LoadUserBuffs(args.Player.User.ID))
 				{
-					if (permas[args.Player.User.ID].bufflist.Count > 0)
-						args.Player.SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", permas[args.Player.User.ID].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
+					if (DB.PlayerBuffs[args.Player.User.ID].bufflist.Count > 0)
+						args.Player.SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", DB.PlayerBuffs[args.Player.User.ID].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
 				}
 				else
-					createDBInfo(args.Player.User.ID);
+					DB.AddNewUser(args.Player.User.ID);
 			}
 			else
 			{
-				permas.Remove(args.Player.User.ID);
-				loadDBInfo(args.Player.User.ID);
-				if (permas[args.Player.User.ID].bufflist.Count > 0)
-					args.Player.SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", permas[args.Player.User.ID].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
+				DB.PlayerBuffs.Remove(args.Player.User.ID);
+				DB.LoadUserBuffs(args.Player.User.ID);
+				if (DB.PlayerBuffs[args.Player.User.ID].bufflist.Count > 0)
+					args.Player.SendInfoMessage("Your permabuffs from your previous session ({0}) are still active!", string.Join(", ", DB.PlayerBuffs[args.Player.User.ID].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
 			}
 		}
 
 		public void OnAccDelete(AccountDeleteEventArgs args)
 		{
-			db.Query("DELETE FROM Permabuffs WHERE UserID=@0;", args.User.ID);
+			DB.ClearPlayerBuffs(args.User.ID);
 		}
 
 		public void OnRegionEnter(RegionHooks.RegionEnteredEventArgs args)
 		{
-			RegionBuff rb = Array.Find(config.regionbuffs, p => p.regionName == args.Region.Name && p.buffs.Count > 0);
+			RegionBuff rb = config.regionbuffs.FirstOrDefault(p => p.regionName == args.Region.Name && p.buffs.Count > 0);
 
 			if (rb == null)
 				return;
@@ -175,8 +171,8 @@ namespace Permabuffs_V2
 			if (!plr.IsLoggedIn)
 				return;
 
-			if (permas.ContainsKey(plr.User.ID))
-				permas.Remove(plr.User.ID);
+			if (DB.PlayerBuffs.ContainsKey(plr.User.ID))
+				DB.PlayerBuffs.Remove(plr.User.ID);
 		}
 
 		private void OnElapsed(object sender, ElapsedEventArgs args)
@@ -193,8 +189,7 @@ namespace Permabuffs_V2
 
 				if (TShock.Players[i].CurrentRegion != null)
 				{
-
-					RegionBuff rb = Array.Find(config.regionbuffs, p => TShock.Players[i].CurrentRegion.Name == p.regionName && p.buffs.Count > 0);
+					RegionBuff rb = config.regionbuffs.FirstOrDefault(p => TShock.Players[i].CurrentRegion.Name == p.regionName && p.buffs.Count > 0);
 
 					if (rb != null)
 					{
@@ -208,15 +203,9 @@ namespace Permabuffs_V2
 				if (!TShock.Players[i].IsLoggedIn)
 					continue;
 
-				int id = TShock.Players[i].User.ID;
-
-				if (permas[id].bufflist.Count > 0)
-				{
-					for (int k = 0; k < permas[id].bufflist.Count; k++)
-					{
-						TShock.Players[i].SetBuff(permas[id].bufflist[k], 18000);
-					}
-				}
+				if (DB.PlayerBuffs.ContainsKey(TShock.Players[i].User.ID))
+					foreach (var buff in DB.PlayerBuffs[TShock.Players[i].User.ID].bufflist)
+						TShock.Players[i].SetBuff(buff, 18000);
 			}
 		}
 		#endregion
@@ -224,6 +213,14 @@ namespace Permabuffs_V2
 		#region Buff Commands
 		private void PBuffs(CommandArgs args)
 		{
+			if (config.buffgroups.Length == 0)
+			{
+				args.Player.SendErrorMessage("Your server administrator has not defined any buff groups. Please contact an admin to fix this issue.");
+				return;
+			}
+
+			List<BuffGroup> availableBuffGroups = config.buffgroups.Where(e => args.Player.HasPermission($"pb.{e.groupPerm}") || args.Player.HasPermission("pb.useall")).ToList();
+
 			int bufftype = -1;
 
 			if (args.Parameters.Count == 0)
@@ -231,82 +228,59 @@ namespace Permabuffs_V2
 				args.Player.SendErrorMessage("Invalid syntax: {0}permabuff <buff name or ID>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
 				return;
 			}
-			else
+
+			string buff = string.Join(" ", args.Parameters);
+
+			// Get buff type by name
+			if (!int.TryParse(args.Parameters[0], out bufftype))
 			{
-				string buff = string.Join(" ", args.Parameters);
+				List<int> bufftypelist = TShock.Utils.GetBuffByName(buff);
 
-				bool tryparse = Int32.TryParse(args.Parameters[0], out bufftype);
-
-				if (!tryparse)
+				if (bufftypelist.Count < 1)
 				{
-					List<int> bufftypelist = new List<int>();
-					bufftypelist = TShock.Utils.GetBuffByName(buff);
-
-					if (bufftypelist.Count < 1)
-					{
-						args.Player.SendErrorMessage("No buffs by that name were found.");
-						return;
-					}
-					else if (bufftypelist.Count > 1)
-					{
-						TShock.Utils.SendMultipleMatchError(args.Player, bufftypelist.Select(p => TShock.Utils.GetBuffName(p)));
-						return;
-					}
-					else
-						bufftype = bufftypelist[0];
-
+					args.Player.SendErrorMessage("No buffs by that name were found.");
+					return;
 				}
+				else if (bufftypelist.Count > 1)
+				{
+					TShock.Utils.SendMultipleMatchError(args.Player, bufftypelist.Select(p => TShock.Utils.GetBuffName(p)));
+					return;
+				}
+				else
+					bufftype = bufftypelist[0];
 			}
+			else if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 206 (1.3.5.3)).
+				args.Player.SendErrorMessage("Invalid buff ID!");
+
 
 			int playerid = args.Player.User.ID;
 
-			if (permas[playerid].bufflist.Contains(bufftype))
+			availableBuffGroups.RemoveAll(e => !e.buffIDs.Contains(bufftype));
+
+			if (availableBuffGroups.Count == 0)
 			{
-				permas[playerid].bufflist.Remove(bufftype);
-				updateBuffs(playerid, permas[playerid].bufflist);
+				args.Player.SendErrorMessage("You do not have access to this permabuff!");
+				return;
+			}
+
+			if (DB.PlayerBuffs[playerid].bufflist.Contains(bufftype))
+			{
+				DB.PlayerBuffs[playerid].bufflist.Remove(bufftype);
+				DB.UpdatePlayerBuffs(playerid, DB.PlayerBuffs[playerid].bufflist);
 				args.Player.SendInfoMessage("You have removed the " + TShock.Utils.GetBuffName(bufftype) + " permabuff.");
 				return;
 			}
+
+			if (bufftype.IsPermanent())
+			{
+				DB.PlayerBuffs[playerid].bufflist.Add(bufftype);
+				DB.UpdatePlayerBuffs(playerid, DB.PlayerBuffs[playerid].bufflist);
+				args.Player.SendSuccessMessage($"You have permabuffed yourself with the {TShock.Utils.GetBuffName(bufftype)} buff! Re-type this command to disable the buff.");
+			}
 			else
 			{
-				if (config.buffgroups.Length == 0)
-				{
-					args.Player.SendErrorMessage("Your server administrator has not defined any buff groups. Please contact an admin to fix this issue.");
-					return;
-				}
-
-				string buffperm = null;
-				bool isperma = false;
-				bool exists = findBuffInConfig(bufftype, out buffperm, out isperma);
-
-				if (!exists)
-				{
-					args.Player.SendErrorMessage("This buff is not available as a permabuff.");
-					return;
-				}
-
-				string perm = "pb." + buffperm;
-
-				if (!args.Player.HasPermission(perm) && !args.Player.HasPermission("pb.useall"))
-				{
-					args.Player.SendErrorMessage("You do not have permission to buff yourself with this buff!");
-					return;
-				}
-
-				if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
-					args.Player.SendErrorMessage("Invalid buff ID!");
-
-				if (isperma)
-				{
-					permas[playerid].bufflist.Add(bufftype);
-					updateBuffs(playerid, permas[playerid].bufflist);
-					args.Player.SendSuccessMessage("You have permabuffed yourself with the {0} buff! Re-type this command to disable the buff.", TShock.Utils.GetBuffName(bufftype));
-				}
-				else
-				{
-					args.Player.SetBuff(bufftype);
-					args.Player.SendSuccessMessage("You have given yourself the {0} buff.", TShock.Utils.GetBuffName(bufftype));
-				}
+				args.Player.SetBuff(bufftype);
+				args.Player.SendSuccessMessage($"You have given yourself the {TShock.Utils.GetBuffName(bufftype)} buff.");
 			}
 		}
 
@@ -330,37 +304,35 @@ namespace Permabuffs_V2
 				args.Player.SendErrorMessage("{0} has no permabuffs active.", players[0].Name);
 			else
 			{
-				if (permas[players[0].User.ID].bufflist.Count == 0)
+				if (DB.PlayerBuffs[players[0].User.ID].bufflist.Count == 0)
 					args.Player.SendInfoMessage("{0} has no permabuffs active.", players[0].Name);
 				else
-					args.Player.SendInfoMessage("{0} has the following permabuffs active: {1}", players[0].Name, string.Join(", ", permas[players[0].User.ID].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
+					args.Player.SendInfoMessage("{0} has the following permabuffs active: {1}", players[0].Name, string.Join(", ", DB.PlayerBuffs[players[0].User.ID].bufflist.Select(p => TShock.Utils.GetBuffName(p))));
 			}
 		}
 
 		private void PBGive(CommandArgs args)
 		{
-			int bufftype = -1;
+			if (config.buffgroups.Length == 0)
+			{
+				args.Player.SendErrorMessage("Your server administrator has not defined any buff groups. Please contact an admin to fix this issue.");
+				return;
+			}
+
+			List<BuffGroup> availableBuffGroups = config.buffgroups.Where(e => args.Player.HasPermission($"pb.{e.groupPerm}") || args.Player.HasPermission("pb.useall")).ToList();
 
 			if (args.Parameters.Count == 2)
 			{
-				if (args.Parameters[0] == "-g" && args.Parameters[1] == "list")
+				// /gpermabuffs -g list
+				if (args.Parameters[0].Equals("-g", StringComparison.CurrentCultureIgnoreCase) && args.Parameters[1].Equals("list", StringComparison.CurrentCultureIgnoreCase))
 				{
-					IEnumerable<string> bufflist;
-
-					if (args.Player.HasPermission("pb.useall"))
-						bufflist = (from buffgroups in config.buffgroups select buffgroups.groupName);
-					else
-						bufflist = (from buffgroups in config.buffgroups where args.Player.HasPermission("pb." + buffgroups.groupPerm) select buffgroups.groupName);
-
-					args.Player.SendInfoMessage("Available buff groups: {0}", string.Join(", ", bufflist));
-
+					args.Player.SendInfoMessage($"Available buff groups: {string.Join(", ", availableBuffGroups.Select(e => e.groupName))}");
 					return;
 				}
 
+				// Get player id from args.Parameters[1]
 				string playername = args.Parameters[1];
-
 				List<TSPlayer> players = TShock.Utils.FindPlayer(playername);
-
 				if (players.Count < 1)
 				{
 					args.Player.SendErrorMessage("No players found.");
@@ -371,14 +343,16 @@ namespace Permabuffs_V2
 					TShock.Utils.SendMultipleMatchError(args.Player, players.Select(p => p.Name));
 					return;
 				}
+				else if (!players[0].IsLoggedIn)
+				{
+					args.Player.SendErrorMessage("This player cannot receive permabuffs!");
+					return;
+				}
+				int playerid = players[0].User.ID;
 
+				//Get buff name/id from args.Parameters[0]
 				string buff = args.Parameters[0];
-
-				bufftype = -1;
-
-				bool tryparse = Int32.TryParse(args.Parameters[0], out bufftype);
-
-				if (!tryparse)
+				if (!int.TryParse(args.Parameters[0], out int bufftype))
 				{
 					List<int> bufftypelist = new List<int>();
 					bufftypelist = TShock.Utils.GetBuffByName(buff);
@@ -396,117 +370,88 @@ namespace Permabuffs_V2
 					else
 						bufftype = bufftypelist[0];
 				}
+				else if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
+					args.Player.SendErrorMessage("Invalid buff ID!");
 
-				int playerid = players[0].User.ID;
+				//Removes all groups where the buff isn't included, leaving only a list of groups where player has access AND contains the buff
+				availableBuffGroups.RemoveAll(e => !e.buffIDs.Contains(bufftype));
 
-				if (permas[playerid].bufflist.Contains(bufftype))
+				if (availableBuffGroups.Count == 0)
 				{
-					permas[playerid].bufflist.Remove(bufftype);
-					updateBuffs(playerid, permas[playerid].bufflist);
-					args.Player.SendInfoMessage("You have removed the {0} permabuff for {1}.", TShock.Utils.GetBuffName(bufftype), players[0].Name);
+					args.Player.SendErrorMessage("You do not have access to this permabuff!");
+					return;
+				}
+
+				if (DB.PlayerBuffs[playerid].bufflist.Contains(bufftype))
+				{
+					DB.PlayerBuffs[playerid].bufflist.Remove(bufftype);
+					DB.UpdatePlayerBuffs(playerid, DB.PlayerBuffs[playerid].bufflist);
+					args.Player.SendInfoMessage($"You have removed the {TShock.Utils.GetBuffName(bufftype)} permabuff for {players[0].Name}.");
 					if (!args.Silent)
-						players[0].SendInfoMessage("{0} has removed your {1} permabuff.", args.Player.Name, TShock.Utils.GetBuffName(bufftype));
+						players[0].SendInfoMessage($"{args.Player.Name} has removed your {TShock.Utils.GetBuffName(bufftype)} permabuff.");
+				}
+				else if (bufftype.IsPermanent())
+				{
+					DB.PlayerBuffs[playerid].bufflist.Add(bufftype);
+					DB.UpdatePlayerBuffs(playerid, DB.PlayerBuffs[playerid].bufflist);
+					args.Player.SendSuccessMessage($"You have permabuffed {players[0].Name} with the {TShock.Utils.GetBuffName(bufftype)} buff!");
+					if (!args.Silent)
+						players[0].SendInfoMessage($"{args.Player.Name} has permabuffed you with the {TShock.Utils.GetBuffName(bufftype)} buff!");
 				}
 				else
 				{
-					if (config.buffgroups.Length == 0)
-					{
-						args.Player.SendErrorMessage("Your server administrator has not defined any buff groups. Please contact an admin to fix this issue.");
-						return;
-					}
-
-					string buffgroup = null;
-					bool isperma = false;
-					bool exists = findBuffInConfig(bufftype, out buffgroup, out isperma);
-
-					if (!exists)
-					{
-						args.Player.SendErrorMessage("This buff is not available as a permabuff.");
-						return;
-					}
-
-					string perm = "pb." + buffgroup;
-
-					if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
-						args.Player.SendErrorMessage("Invalid buff ID!");
-
-					if (isperma)
-					{
-						permas[playerid].bufflist.Add(bufftype);
-						updateBuffs(playerid, permas[playerid].bufflist);
-						args.Player.SendSuccessMessage("You have permabuffed {0} with the {1} buff!", players[0].Name, TShock.Utils.GetBuffName(bufftype));
-						if (!args.Silent)
-							players[0].SendInfoMessage("{0} has permabuffed you with the {1} buff!", args.Player.Name, TShock.Utils.GetBuffName(bufftype));
-					}
-					else
-					{
-						args.Player.SetBuff(bufftype);
-						args.Player.SendSuccessMessage("You have given {0} the {1} buff!", players[0].Name, TShock.Utils.GetBuffName(bufftype));
-						if (!args.Silent)
-							players[0].SendInfoMessage("{0} has given you the {1} buff!", args.Player.Name, TShock.Utils.GetBuffName(bufftype));
-					}
+					args.Player.SetBuff(bufftype);
+					args.Player.SendSuccessMessage($"You have given {players[0].Name} the {TShock.Utils.GetBuffName(bufftype)} buff!");
+					if (!args.Silent)
+						players[0].SendInfoMessage($"{args.Player.Name} has given you the {TShock.Utils.GetBuffName(bufftype)} buff!");
 				}
 			}
+			//gpermabuff -g <group> <player>
 			else if (args.Parameters.Count == 3)
 			{
-				var plist = TShock.Utils.FindPlayer(args.Parameters[2]);
-
-				if (plist.Count == 0)
-				{
-					args.Player.SendErrorMessage($"Unknown Player: {args.Parameters[2]}");
-					return;
-				}
-				else if (plist.Count > 1)
-				{
-					TShock.Utils.SendMultipleMatchError(args.Player, plist.Select(p => p.Name));
-					return;
-				}
-				else if (!plist[0].IsLoggedIn)
-				{
-					args.Player.SendErrorMessage("This player cannot receive permabuffs!");
-					return;
-				}
-
-				TSPlayer player = plist[0];
-				int id = plist[0].User.ID;
-
-				if (args.Parameters[0] == "-g" && config.buffgroups.Count(p => p.groupName == args.Parameters[1]) > 0 && plist.Count == 1)
-				{
-					var buffgroups = (from buffs in config.buffgroups where buffs.groupName == args.Parameters[1] select buffs.buffIDs);
-
-					foreach (int buff in buffgroups.FirstOrDefault())
-					{
-						if (!permas[id].bufflist.Contains(buff))
-						{
-							permas[id].bufflist.Add(buff);
-						}
-					}
-
-					updateBuffs(id, permas[id].bufflist);
-
-					args.Player.SendSuccessMessage("Successfully permabuffed {0} with all of the buffs in the group {1}!", player.Name, args.Parameters[1]);
-
-					if (!args.Silent)
-						args.Player.SendInfoMessage("{0} has permabuffed you with all of the buffs in the group {1}!", args.Player.Name, args.Parameters[1]);
-				}
-				else if (args.Parameters[0] != "-g")
+				if (args.Parameters[0] != "-g")
 				{
 					args.Player.SendErrorMessage("Invalid syntax:");
 					args.Player.SendErrorMessage("{0}gpermabuff <buff name or ID> <player>", TShock.Config.CommandSpecifier);
 					args.Player.SendErrorMessage("{0}gpermabuff -g <buff group> <player>", TShock.Config.CommandSpecifier);
 				}
-				else if (config.buffgroups.Count(p => p.groupName == args.Parameters[1]) == 0)
+
+				var matchedPlayers = TShock.Utils.FindPlayer(args.Parameters[2]);
+
+				if (matchedPlayers.Count == 0)
 				{
-					args.Player.SendErrorMessage("No buffgroups match your query!");
+					args.Player.SendErrorMessage($"No players found by the name: {args.Parameters[2]}");
+					return;
 				}
-				else if (plist.Count == 0)
+				else if (matchedPlayers.Count > 1)
 				{
-					args.Player.SendErrorMessage("No players matched!");
+					TShock.Utils.SendMultipleMatchError(args.Player, matchedPlayers.Select(p => p.Name));
+					return;
 				}
-				else
+				else if (!matchedPlayers[0].IsLoggedIn)
 				{
-					TShock.Utils.SendMultipleMatchError(args.Player, TShock.Utils.FindPlayer(args.Parameters[2]));
+					args.Player.SendErrorMessage("This player cannot receive permabuffs!");
+					return;
 				}
+				else if (!availableBuffGroups.Any(e => e.groupName.Equals(args.Parameters[1], StringComparison.CurrentCultureIgnoreCase)))
+				{
+					args.Player.SendErrorMessage("No buffgroups matched your query!");
+				}
+
+				TSPlayer player = matchedPlayers[0];
+				int id = matchedPlayers[0].User.ID;
+
+				foreach (var buff in availableBuffGroups.First(e => e.groupName.Equals(args.Parameters[1], StringComparison.CurrentCultureIgnoreCase)).buffIDs)
+				{
+					if (!DB.PlayerBuffs[id].bufflist.Contains(buff) && buff.IsPermanent())
+						DB.PlayerBuffs[id].bufflist.Add(buff);
+				}
+				DB.UpdatePlayerBuffs(id, DB.PlayerBuffs[id].bufflist);
+
+				args.Player.SendSuccessMessage($"Successfully permabuffed {player.Name} with all of the buffs in the group {args.Parameters[1]}!");
+
+				if (!args.Silent)
+					args.Player.SendInfoMessage($"{args.Player.Name} has permabuffed you with all of the buffs in the group {args.Parameters[1]}!");
 			}
 			else
 			{
@@ -517,10 +462,9 @@ namespace Permabuffs_V2
 			}
 		}
 
-		private void PBReload(CommandArgs args)
+		private void PBReload(ReloadEventArgs args)
 		{
-			args.Player.SendSuccessMessage("Permabuff config reloaded!");
-			loadConfig();
+			config = Config.Read(configPath);
 		}
 
 		private void PBRegion(CommandArgs args)
@@ -533,7 +477,7 @@ namespace Permabuffs_V2
 				return;
 			}
 
-			if (args.Parameters[0] == "add")
+			if (args.Parameters[0].Equals("add", StringComparison.CurrentCultureIgnoreCase))
 			{
 				string regionname = args.Parameters[1];
 				Region region = TShock.Regions.GetRegionByName(regionname);
@@ -618,7 +562,7 @@ namespace Permabuffs_V2
 				}
 			}
 
-			if (args.Parameters[0] == "del")
+			if (args.Parameters[0].Equals("del", StringComparison.CurrentCultureIgnoreCase) || args.Parameters[0].Equals("delete", StringComparison.CurrentCultureIgnoreCase))
 			{
 				string regionname = args.Parameters[1];
 				Region region = TShock.Regions.GetRegionByName(regionname);
@@ -693,13 +637,9 @@ namespace Permabuffs_V2
 
 			string buff = string.Join(" ", args.Parameters);
 
-			int bufftype = -1;
-			bool tryparse = Int32.TryParse(args.Parameters[0], out bufftype);
-
-			if (!tryparse)
+			if (!int.TryParse(args.Parameters[0], out int bufftype))
 			{
-				List<int> bufftypelist = new List<int>();
-				bufftypelist = TShock.Utils.GetBuffByName(buff);
+				List<int> bufftypelist = TShock.Utils.GetBuffByName(buff);
 
 				if (bufftypelist.Count < 1)
 				{
@@ -718,11 +658,7 @@ namespace Permabuffs_V2
 			if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190).
 				args.Player.SendErrorMessage("Invalid buff ID!");
 
-			string buffgroup = null;
-			bool isperma = false;
-			bool exists = findBuffInConfig(bufftype, out buffgroup, out isperma);
-
-			if (!exists || !isperma)
+			if (!bufftype.IsPermanent() || !config.buffgroups.Any(e => e.buffIDs.Contains(bufftype)))
 				args.Player.SendErrorMessage("This buff is not available as a global buff!");
 			else if (globalbuffs.Contains(bufftype))
 			{
@@ -738,17 +674,17 @@ namespace Permabuffs_V2
 
 		private void PBClear(CommandArgs args)
 		{
-			if (args.Parameters.Count == 1 && (args.Parameters[0] == "*" || args.Parameters[0] == "all"))
+			if (args.Parameters.Count == 1 && (args.Parameters[0] == "*" || args.Parameters[0].Equals("all", StringComparison.CurrentCultureIgnoreCase)))
 			{
 				if (!args.Player.HasPermission("pb.clear"))
 				{
 					args.Player.SendErrorMessage("You do not have permission to clear all permabuffs.");
 					return;
 				}
-				foreach (KeyValuePair<int, DBInfo> kvp in permas)
+				foreach (KeyValuePair<int, DBInfo> kvp in DB.PlayerBuffs)
 				{
 					kvp.Value.bufflist.Clear();
-					clearDB();
+					DB.ClearDB();
 				}
 				args.Player.SendSuccessMessage("All permabuffs have been deactivated for all players.");
 				if (!args.Silent)
@@ -763,104 +699,11 @@ namespace Permabuffs_V2
 					args.Player.SendErrorMessage("You must be in-game to use this command.");
 					return;
 				}
-				permas[args.Player.User.ID].bufflist.Clear();
+				DB.PlayerBuffs[args.Player.User.ID].bufflist.Clear();
 
-				clearDB(args.Player.User.ID);
+				DB.ClearPlayerBuffs(args.Player.User.ID);
 				args.Player.SendSuccessMessage("All of your permabuffs have been deactivated.");
 			}
-		}
-		#endregion
-
-		private void loadConfig()
-		{
-			config = Config.Read(configPath);
-		}
-
-		private bool findBuffInConfig(int bufftype, out string buffgroup, out bool isperma)
-		{
-			foreach (BuffGroup group in config.buffgroups)
-			{
-				if (group.buffIDs.Contains(bufftype))
-				{
-					buffgroup = group.groupPerm;
-					isperma = group.isperma;
-					return true;
-				}
-			}
-
-			buffgroup = null;
-			isperma = false;
-			return false;
-		}
-
-		#region Database Functions
-		private void DBConnect()
-		{
-			switch (TShock.Config.StorageType.ToLower())
-			{
-				case "mysql":
-					string[] dbHost = TShock.Config.MySqlHost.Split(':');
-					db = new MySqlConnection()
-					{
-						ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4};",
-							dbHost[0],
-							dbHost.Length == 1 ? "3306" : dbHost[1],
-							TShock.Config.MySqlDbName,
-							TShock.Config.MySqlUsername,
-							TShock.Config.MySqlPassword)
-
-					};
-					break;
-
-				case "sqlite":
-					string sql = Path.Combine(TShock.SavePath, "Permabuffs.sqlite");
-					db = new SqliteConnection(string.Format("uri=file://{0},Version=3", sql));
-					break;
-
-			}
-
-			SqlTableCreator sqlcreator = new SqlTableCreator(db, db.GetSqlType() == SqlType.Sqlite ? (IQueryBuilder)new SqliteQueryCreator() : new MysqlQueryCreator());
-
-			sqlcreator.EnsureTableStructure(new SqlTable("Permabuffs",
-				new SqlColumn("UserID", MySqlDbType.Int32) { Primary = true, Unique = true, Length = 4 },
-				new SqlColumn("ActiveBuffs", MySqlDbType.Text) { Length = 100 }));
-		}
-
-		private bool loadDBInfo(int userid)
-		{
-			using (QueryResult result = db.QueryReader("SELECT * FROM Permabuffs WHERE UserID=@0;", userid))
-			{
-				if (result.Read())
-				{
-					permas.Add(userid, new DBInfo(result.Get<string>("ActiveBuffs")));
-					return true;
-				}
-				else
-					return false;
-			}
-		}
-
-		private void createDBInfo(int userid)
-		{
-			db.Query("INSERT INTO Permabuffs (UserId, ActiveBuffs) VALUES (@0, @1);", userid, String.Empty);
-			permas.Add(userid, new DBInfo(""));
-		}
-
-		private void updateBuffs(int userid, List<int> bufflist)
-		{
-			string buffstring = string.Join(",", bufflist.Select(p => p.ToString()));
-
-			db.Query("UPDATE Permabuffs SET ActiveBuffs=@0 WHERE UserID=@1;", buffstring, userid);
-		}
-
-		private void clearDB()
-		{
-			db.Query("DELETE FROM Permabuffs");
-		}
-
-		private void clearDB(int userid)
-		{
-			db.Query("DELETE FROM Permabuffs WHERE UserID=@0;", userid);
 		}
 		#endregion
 	}
