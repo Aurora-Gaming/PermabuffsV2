@@ -239,9 +239,16 @@ namespace Permabuffs_V2
 
 		public static Config Read(string path)
 		{
-			return !File.Exists(path)
-				? new Config()
-				: JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
+            if (!File.Exists(path))
+            {
+                Config config = new Config();
+                config.Write(path);
+                return config;
+            }
+            else
+            {
+               return JsonConvert.DeserializeObject<Config>(File.ReadAllText(path));
+            }
 		}
 	}
 }
