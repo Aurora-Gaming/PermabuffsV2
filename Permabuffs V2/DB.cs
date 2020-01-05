@@ -15,7 +15,7 @@ namespace Permabuffs_V2
 	public static class DB
 	{
 		private static IDbConnection db;
-		public static Dictionary<int, DBInfo> PlayerBuffs;
+		public static Dictionary<int, DBInfo> PlayerBuffs = new Dictionary<int, DBInfo>();
 
 		public static void Connect()
 		{
