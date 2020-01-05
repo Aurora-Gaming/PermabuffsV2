@@ -234,7 +234,7 @@ namespace Permabuffs_V2
 
 		public void Write(string path)
 		{
-			File.WriteAllText(path, JsonConvert.SerializeObject(Permabuffs.config, Formatting.Indented));
+			File.WriteAllText(path, JsonConvert.SerializeObject(this, Formatting.Indented));
 		}
 
 		public static Config Read(string path)
