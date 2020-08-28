@@ -103,10 +103,22 @@ namespace Permabuffs_V2
 				179, //Damage Nebula (1)
 				180, //Damage Nebula (2)
 				181, //Damage Nebula (3)
+                192, //Sugar Rush
 				198, //Striking Moment
-				205 //Ballista Panic
+				205, //Ballista Panic
+                206,//Plenty Satisfied  - Well fed tier 2
+                207, //Exquisitely Stuffed - Well fed tier 3
+                215, //The Bast Defense
+                257, //Lucky
+                //306 - Titanium Barrier - Client-Activated Only, otherwise no effect
+                311, //Harvest Time
+                314, //Jungle's Fury
+                321 //Cerebral Mindtrick
+
+
+
 				}
-			},
+            },
 			new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", buffIDs = new List<int>() {
 				19, //Shadow Orb
                 27, //Fairy
@@ -164,12 +176,70 @@ namespace Permabuffs_V2
                 //182 - Stardust Cell - Client-Activated Only
                 //187 - Stardust Guardian - Client-Activated Only
                 //188 - Stardust Dragon - Client-Activated Only
-                190, // Suspicious Looking Eyea
+                190, // Suspicious Looking Eye
                 191, //Companion Cube
 				193, //Basilisk Mount
 				200, //Propeller Gato
 				201, //Flickerwick
-				202 //Hoardagron
+				202, //Hoardagron
+                212, //Golf Cart
+                //213 - Sanguine Bat - Client-Activated Only
+                //214 - Vampire Frog - Client-Activated Only
+                //216 - Baby Finch - Client-Activated Only
+                217, //Estee
+                218, //Sugar Glider
+                219, //Shark Pup
+                230, //Witch's Broom
+                258, //Lil' Harpy
+                259, //Fennec Fox
+                260, //Glittery Butterfly
+                261, //Baby Imp
+                262, //Baby Red Panda
+                263, //Desert Tiger
+                264, //Plantero
+                265, //Flamingo
+                266, //Dynamite Kitten
+                267, //Baby Werewolf
+                268, //Shadow Mimic
+                //271 - Enchanted Daggers - Client-Activated Only
+                274, //Volt Bunny
+                275, //Painted Horse Mount
+                276, //Majestic Horse Mount
+                277, //Dark Horse Mount
+                278, //Pogo Stick Mount
+                279, //Pirate Ship Mount
+                280, //Tree Mount
+                281, //Santank Mount
+                282, //Goat Mount
+                283, //Book Mount
+                284, //Slime Prince
+                285, //Suspicious Eye
+                286, //Eater of Worms
+                287, //Spider Brain
+                288, //Skeletron Jr.
+                289, //Honey Bee
+                290, //Destroyer-Lite
+                291, //Rez and Spaz
+                292, //Mini Prime
+                293, //Plantera Seedling
+                294, //Toy Golem
+                295, //Tiny Fishron
+                296, //Phantasmal Dragon
+                297, //Moonling
+                298, //Fairy Princess
+                299, //Jack 'O Lantern
+                300, //Everscream Sapling
+                301, //Ice Queen
+                302, //Alien Skater
+                303, //Baby Ogre
+                304, //Itsy Betsy
+                305, //Lava Shark Mount
+                //312 - A Nice buff - Client-Activated Only, otherwise no effect
+                317, //Slime Princess
+                318 //Winged Slime Mount
+                //322 - Terraprimsa - Client-Activated Only
+
+
             }},
 			new BuffGroup()
 			{
@@ -215,14 +285,15 @@ namespace Permabuffs_V2
                 //183 - Celled - Doesn't affect humans
                 //186 - Dryad's Bane - Doesn't affect humans
                 //189 - Daybroken - Doesn't affect humans
-				192, //Sugar Rush
 				194, //Wind Pushed
 				195, //Withered Armor
 				196, //Withered Weapon
 				197, //Oozed
 				//199 - Creative Shock - Shows up but doesn't actually disable building
-				203 //Betsy's Curse
-					//204 - Oiled - Doesn't appear to have any effect
+				//203 - No effectBetsy's Curse
+				//204 - Oiled - Doesn't affect humans
+                320 //Sparkle Slime
+
 				}
 			}
 		};
