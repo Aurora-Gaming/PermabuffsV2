@@ -225,7 +225,7 @@ namespace Permabuffs_V2
 
 			if (args.Parameters.Count == 0)
 			{
-				args.Player.SendErrorMessage("Invalid syntax: {0}permabuff <buff name or ID>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+				args.Player.SendErrorMessage("Invalid syntax: {0}permabuff <buff name or ID>", (args.Silent ? TShock.Config.Settings.CommandSilentSpecifier : TShock.Config.Settings.CommandSpecifier));
 				return;
 			}
 
@@ -289,7 +289,7 @@ namespace Permabuffs_V2
 		{
 			if (args.Parameters.Count == 0)
 			{
-				args.Player.SendErrorMessage("Invalid syntax: {0}buffcheck <player>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+				args.Player.SendErrorMessage("Invalid syntax: {0}buffcheck <player>", (args.Silent ? TShock.Config.Settings.CommandSilentSpecifier : TShock.Config.Settings.CommandSpecifier));
 				return;
 			}
 
@@ -413,8 +413,8 @@ namespace Permabuffs_V2
 				if (args.Parameters[0] != "-g")
 				{
 					args.Player.SendErrorMessage("Invalid syntax:");
-					args.Player.SendErrorMessage("{0}gpermabuff <buff name or ID> <player>", TShock.Config.CommandSpecifier);
-					args.Player.SendErrorMessage("{0}gpermabuff -g <buff group> <player>", TShock.Config.CommandSpecifier);
+					args.Player.SendErrorMessage("{0}gpermabuff <buff name or ID> <player>", TShock.Config.Settings.CommandSpecifier);
+					args.Player.SendErrorMessage("{0}gpermabuff -g <buff group> <player>", TShock.Config.Settings.CommandSpecifier);
 				}
 
 				var matchedPlayers = TShockAPI.TSPlayer.FindByNameOrID(args.Parameters[2]);
@@ -457,8 +457,8 @@ namespace Permabuffs_V2
 			else
 			{
 				args.Player.SendErrorMessage("Invalid syntax:");
-				args.Player.SendErrorMessage("{0}gpermabuff <buff name or ID> <player>", TShock.Config.CommandSpecifier);
-				args.Player.SendErrorMessage("{0}gpermabuff -g <buff group> <player>", TShock.Config.CommandSpecifier);
+				args.Player.SendErrorMessage("{0}gpermabuff <buff name or ID> <player>", TShock.Config.Settings.CommandSpecifier);
+				args.Player.SendErrorMessage("{0}gpermabuff -g <buff group> <player>", TShock.Config.Settings.CommandSpecifier);
 				return;
 			}
 		}
@@ -474,7 +474,7 @@ namespace Permabuffs_V2
 
 			if (args.Parameters.Count < 3 || args.Parameters.Count > 4)
 			{
-				args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID> [duration]", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+				args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID> [duration]", (args.Silent ? TShock.Config.Settings.CommandSilentSpecifier : TShock.Config.Settings.CommandSpecifier));
 				return;
 			}
 
@@ -485,7 +485,7 @@ namespace Permabuffs_V2
 				string buffinput = args.Parameters[2];
 				if (args.Parameters.Count != 4)
 				{
-					args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID> [duration]", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+					args.Player.SendErrorMessage("Invalid Syntax: {0}regionbuff <add/del> <region name> <buff name/ID> [duration]", (args.Silent ? TShock.Config.Settings.CommandSilentSpecifier : TShock.Config.Settings.CommandSpecifier));
 					return;
 				}
 				string durationinput = args.Parameters[3];
@@ -625,14 +625,14 @@ namespace Permabuffs_V2
 				}
 			}
 
-			args.Player.SendErrorMessage("Invalid syntax: {0}regionbuff <add/del> <region name> <buff name/ID>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+			args.Player.SendErrorMessage("Invalid syntax: {0}regionbuff <add/del> <region name> <buff name/ID>", (args.Silent ? TShock.Config.Settings.CommandSilentSpecifier : TShock.Config.Settings.CommandSpecifier));
 		}
 
 		private void PBGlobal(CommandArgs args)
 		{
 			if (args.Parameters.Count == 0)
 			{
-				args.Player.SendErrorMessage("Invalid Syntax: {0}globalbuff <buff name>", (args.Silent ? TShock.Config.CommandSilentSpecifier : TShock.Config.CommandSpecifier));
+				args.Player.SendErrorMessage("Invalid Syntax: {0}globalbuff <buff name>", (args.Silent ? TShock.Config.Settings.CommandSilentSpecifier : TShock.Config.Settings.CommandSpecifier));
 				return;
 			}
 
