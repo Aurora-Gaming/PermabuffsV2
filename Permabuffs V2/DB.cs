@@ -5,32 +5,30 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 using TShockAPI.DB;
 
 namespace Permabuffs_V2
 {
-	public static class DB
+    public static class DB
 	{
 		private static IDbConnection db;
 		public static Dictionary<int, DBInfo> PlayerBuffs = new Dictionary<int, DBInfo>();
 
 		public static void Connect()
 		{
-			switch (TShock.Config.StorageType.ToLower())
+			switch (TShock.Config.Settings.StorageType.ToLower())
 			{
 				case "mysql":
-					string[] dbHost = TShock.Config.MySqlHost.Split(':');
+					string[] dbHost = TShock.Config.Settings.MySqlHost.Split(':');
 					db = new MySqlConnection()
 					{
 						ConnectionString = string.Format("Server={0}; Port={1}; Database={2}; Uid={3}; Pwd={4};",
 							dbHost[0],
 							dbHost.Length == 1 ? "3306" : dbHost[1],
-							TShock.Config.MySqlDbName,
-							TShock.Config.MySqlUsername,
-							TShock.Config.MySqlPassword)
+							TShock.Config.Settings.MySqlDbName,
+							TShock.Config.Settings.MySqlUsername,
+							TShock.Config.Settings.MySqlPassword)
 
 					};
 					break;
