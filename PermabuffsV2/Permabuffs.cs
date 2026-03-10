@@ -1,10 +1,4 @@
-﻿using Mono.Data.Sqlite;
-using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
+﻿using System.Data;
 using System.Reflection;
 using System.Timers;
 using Terraria;
@@ -23,7 +17,7 @@ namespace Permabuffs_V2
 		public override string Description { get { return "A plugin for permabuffs."; } }
 		public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
-		private static Timer update;
+		private static System.Timers.Timer update;
 		private static List<int> globalbuffs = new List<int>();
 		private static List<RegionBuff> regionbuffs = new List<RegionBuff>();
 		private static Dictionary<int, List<string>> hasAnnounced = new Dictionary<int, List<string>>();
@@ -70,7 +64,7 @@ namespace Permabuffs_V2
 		{
 			DB.Connect();
 
-			update = new Timer { Interval = 1000, AutoReset = true, Enabled = true };
+			update = new System.Timers.Timer { Interval = 1000, AutoReset = true, Enabled = true };
 			update.Elapsed += OnElapsed;
 
 			Commands.ChatCommands.Add(new Command("pb.use", PBuffs, "permabuff") { AllowServer = false, HelpText = "Buffs yourself with a buff permanently." });
@@ -250,7 +244,7 @@ namespace Permabuffs_V2
 				else
 					bufftype = bufftypelist[0];
 			}
-			else if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 206 (1.3.5.3)).
+			else if (bufftype > Terraria.ID.BuffID.Count|| bufftype < 1) // Buff ID is not valid (less than 1 or higher than 206 (1.3.5.3)).
 				args.Player.SendErrorMessage("Invalid buff ID!");
 
 
@@ -272,7 +266,7 @@ namespace Permabuffs_V2
 				return;
 			}
 
-			if (bufftype.IsPermanent())
+			if (bufftype.BuffHasTimer())
 			{
 				DB.PlayerBuffs[playerid].bufflist.Add(bufftype);
 				DB.UpdatePlayerBuffs(playerid, DB.PlayerBuffs[playerid].bufflist);
@@ -371,7 +365,7 @@ namespace Permabuffs_V2
 					else
 						bufftype = bufftypelist[0];
 				}
-				else if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
+				else if (bufftype > Terraria.ID.BuffID.Count || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 192 (1.3.1)).
 					args.Player.SendErrorMessage("Invalid buff ID!");
 
 				//Removes all groups where the buff isn't included, leaving only a list of groups where player has access AND contains the buff
@@ -391,7 +385,7 @@ namespace Permabuffs_V2
 					if (!args.Silent)
 						players[0].SendInfoMessage($"{args.Player.Name} has removed your {TShock.Utils.GetBuffName(bufftype)} permabuff.");
 				}
-				else if (bufftype.IsPermanent())
+				else if (bufftype.BuffHasTimer())
 				{
 					DB.PlayerBuffs[playerid].bufflist.Add(bufftype);
 					DB.UpdatePlayerBuffs(playerid, DB.PlayerBuffs[playerid].bufflist);
@@ -444,7 +438,7 @@ namespace Permabuffs_V2
 
 				foreach (var buff in availableBuffGroups.First(e => e.groupName.Equals(args.Parameters[1], StringComparison.CurrentCultureIgnoreCase)).buffIDs)
 				{
-					if (!DB.PlayerBuffs[id].bufflist.Contains(buff) && buff.IsPermanent())
+					if (!DB.PlayerBuffs[id].bufflist.Contains(buff) && buff.BuffHasTimer())
 						DB.PlayerBuffs[id].bufflist.Add(buff);
 				}
 				DB.UpdatePlayerBuffs(id, DB.PlayerBuffs[id].bufflist);
@@ -516,7 +510,7 @@ namespace Permabuffs_V2
 					bufftype = bufflist[0];
 				}
 
-				if (bufftype < 0 || bufftype > Main.maxBuffTypes)
+				if (bufftype < 0 || bufftype > Terraria.ID.BuffID.Count)
 				{
 					args.Player.SendErrorMessage("Invalid buff ID: {0}", bufftype.ToString());
 					return;
@@ -595,7 +589,7 @@ namespace Permabuffs_V2
 					bufftype = bufflist[0];
 				}
 
-				if (bufftype < 0 || bufftype > Main.maxBuffTypes)
+				if (bufftype < 0 || bufftype > Terraria.ID.BuffID.Count)
 				{
 					args.Player.SendErrorMessage("Invalid buff ID: {0}", bufftype.ToString());
 					return;
@@ -656,10 +650,10 @@ namespace Permabuffs_V2
 					bufftype = bufftypelist[0];
 			}
 
-			if (bufftype > Main.maxBuffTypes || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190).
+			if (bufftype > Terraria.ID.BuffID.Count || bufftype < 1) // Buff ID is not valid (less than 1 or higher than 190).
 				args.Player.SendErrorMessage("Invalid buff ID!");
 
-			if (!bufftype.IsPermanent() || !config.buffgroups.Any(e => e.buffIDs.Contains(bufftype)))
+			if (!bufftype.BuffHasTimer() || !config.buffgroups.Any(e => e.buffIDs.Contains(bufftype)))
 				args.Player.SendErrorMessage("This buff is not available as a global buff!");
 			else if (globalbuffs.Contains(bufftype))
 			{

@@ -106,17 +106,28 @@ namespace Permabuffs_V2
                 192, //Sugar Rush
 				198, //Striking Moment
 				205, //Ballista Panic
-                206,//Plenty Satisfied  - Well fed tier 2
+                206, //Plenty Satisfied  - Well fed tier 2
                 207, //Exquisitely Stuffed - Well fed tier 3
                 215, //The Bast Defense
                 257, //Lucky
-                //306 - Titanium Barrier - Client-Activated Only, otherwise no effect
+                //306 - Titanium Barrier - Activates but has no effect
                 311, //Harvest Time
                 314, //Jungle's Fury
-                321 //Cerebral Mindtrick
+                321, //Cerebral Mindtrick
+                //326 - Activates but has no effect
+                336, // Hearty Meal
+                //340 - Activates but has no effect
+                343, // Biome Sight
+                348, // Strategist
 
-
-
+                //357 - 364 - Activates but has no effect
+                //367 - 369 - Activates but has no effect
+                370, // Instinct of the Raptor
+                374, // Nature of the Rat
+                376, // Torch Blessing
+                377, // Curse of the Bat
+                383, // High Spirits
+                384, // Form of the Fae
 				}
             },
 			new BuffGroup() { groupName = "petbuffs", groupPerm = "petbuffs", buffIDs = new List<int>() {
@@ -236,10 +247,42 @@ namespace Permabuffs_V2
                 305, //Lava Shark Mount
                 //312 - A Nice buff - Client-Activated Only, otherwise no effect
                 317, //Slime Princess
-                318 //Winged Slime Mount
+                318, //Winged Slime Mount
                 //322 - Terraprimsa - Client-Activated Only
-
-
+                //325 - Flinx
+                327, // Bernie
+                328, // Glommer
+                329, // Tiny Deerclops
+                330, // Pig
+                331, // Chester
+                //335 - Abigail
+                338, // Fart Kart
+                //339 - Fart Kart Legacy Unused - Activates but has no effect
+                341, // Slime Royals
+                342, // Blessing of the Moon
+                345, // Junimo
+                346, // Terra Fart Kart
+                // 347 - Terra Fart Kart Legacy Unused
+                349, // Blue Chicken
+                351, // Spiffo
+                352, // Caveling Gardener
+                354, // The Dirtiest Block
+                //355 - Mushroom Boi - Client-Activated Only
+                356, // Swarm Biter
+                //365 - Whip Spider - Buff activates but has no effect
+                366, // Alchemic Enchancement
+                371, // Pufferfish
+                372, // Cenaxe
+                373, // Friendly Boulder
+                378, // Blue Roller Skates
+                379, // Green Roller Skates
+                380, // Classic Roller Skates
+                381, // Party Roller Skates
+                382, // Friendly Rainbow Boulder
+                // 385 - Cattiva - Client-Activated Only
+                // 386 - Foxparks - Client-Activated Only
+                387, // Chillet
+                388, // Chillet Ignis
             }},
 			new BuffGroup()
 			{
@@ -289,13 +332,24 @@ namespace Permabuffs_V2
 				195, //Withered Armor
 				196, //Withered Weapon
 				197, //Oozed
-				//199 - Creative Shock - Shows up but doesn't actually disable building
+				//199 - Creative Shock - Activates but has no effect
 				//203 - No effectBetsy's Curse
 				//204 - Oiled - Doesn't affect humans
-                320 //Sparkle Slime
+                320, //Sparkle Slime
+                323, // Hellfire
+                324, // Frostbite
+                // 332 - Peckish
+                // 333 - Hungry
+                // 334 - Starving
+                // 337 - TentacleSpike - Activates but has no effect
+                // 344 - Blood Butchered - Activates but has no effect
+                // 350 - Shadow Candle
+                353, // Shimmering
+
+                //375 - Hemorrhage - Activates but has no effect
 
 				}
-			}
+            }
 		};
 
 		public RegionBuff[] regionbuffs = new RegionBuff[]
