@@ -1,26 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-
 namespace Permabuffs_V2
 {
+	/// <summary>
+	/// 单个玩家的常驻 buff 集合。数据库里存的是 "1,2,3" 这样的 CSV。
+	/// 原版 `if (ActiveBuffs != "")` 在列值为 NULL 时会 NRE，这里一并加固。
+	/// </summary>
 	public class DBInfo
 	{
-		public List<int> bufflist;
+		public List<int> bufflist = new();
 
-		public DBInfo(string activeBuffs)
+		public DBInfo(string? activeBuffs)
 		{
-			bufflist = new List<int>();
+			if (string.IsNullOrWhiteSpace(activeBuffs)) return;
 
-			string[] buffstring = null;
-
-			if (activeBuffs != "")
+			foreach (string part in activeBuffs.Split(','))
 			{
-				buffstring = activeBuffs.Split(',');
-				foreach (string buff in buffstring)
-				{
-					if (Int32.TryParse(buff, out int tempbuff))
-						bufflist.Add(tempbuff);
-				}
+				string trimmed = part.Trim();
+				if (trimmed.Length > 0 && int.TryParse(trimmed, out int buff) && buff > 0)
+					bufflist.Add(buff);
 			}
 		}
 	}
