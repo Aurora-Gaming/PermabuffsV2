@@ -21,6 +21,9 @@ mono_crash.*
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+# 但 Releases/ 是发版产物目录，需要随仓库分发编译好的 DLL。
+# 必须紧跟在 [Rr]eleases/ 之后：git 无法重新包含被排除目录里的文件。
+!Releases/
 x64/
 x86/
 [Aa][Rr][Mm]/
